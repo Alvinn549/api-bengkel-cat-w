@@ -2,6 +2,8 @@ const express = require('express');
 const routes = require('./routes');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+
 require('dotenv').config();
 
 const app = express();
@@ -13,6 +15,8 @@ app.use(
     origin: '*',
   })
 );
+
+app.use(bodyParser.json());
 
 app.use(express.json());
 

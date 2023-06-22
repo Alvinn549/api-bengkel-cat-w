@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../db/models');
+const { RegisterSchema } = require('../validator/RegisterValidator');
 
 async function getAllUsers(req, res) {
   try {
@@ -14,7 +15,13 @@ async function getAllUsers(req, res) {
 }
 
 async function registerUser(req, res) {
-  const { name, email, password, confirmPassword } = req.body;
+  const { error } = RegisterSchema.validate(req.body);
+  if (error) {
+    const errorMessage = error.details[0].message;
+    return res.status(400).json({ message: errorMessage });
+  }
+
+  const { name, email, password, confirm_password } = req.body;
 
   // Check if user with the same email already exists
   const existingUser = await User.findOne({ where: { email } });
@@ -24,23 +31,18 @@ async function registerUser(req, res) {
       .json({ message: 'User with this email already exists' });
   }
 
-  if (password !== confirmPassword) {
-    return res
-      .status(400)
-      .json({ message: 'Password dan Confirm Password tidak cocok !' });
-  }
-
   const salt = await bcrypt.genSalt();
   const hashPassword = await bcrypt.hash(password, salt);
 
   try {
-    await User.create({
+    const newUser = await User.create({
       name: name,
       email: email,
       password: hashPassword,
     });
     res.json({
       message: 'Register Berhasil !',
+      id: newUser.id,
     });
   } catch (error) {
     console.error(error);
