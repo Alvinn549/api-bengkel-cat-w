@@ -1,14 +1,20 @@
-'use strict';
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // Number of salt rounds for hashing
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: async (queryInterface, Sequelize) => {
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashedPassword = await bcrypt.hash('12345', salt);
+
     return queryInterface.bulkInsert('Users', [
       {
-        name: 'John',
+        nama: 'Tes Admin',
+        no_telp: '089696764576',
+        alamat: 'Ponggok, Pacitan',
+        jenis_k: 'Laki-Laki',
+        role: 'admin',
         email: 'example@example.com',
-        password: 'Doe',
-        refresh_token: null,
+        password: hashedPassword,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

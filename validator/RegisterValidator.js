@@ -1,9 +1,12 @@
 const Joi = require('joi');
 
 const RegisterSchema = Joi.object({
-  name: Joi.string().required(),
+  nama: Joi.string().required(),
+  no_telp: Joi.string().required(),
+  alamat: Joi.string().required(),
+  jenis_k: Joi.string().required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
+  password: Joi.string().min(8).required(),
   confirm_password: Joi.string()
     .valid(Joi.ref('password'))
     .required()

@@ -11,10 +11,10 @@ async function Login(req, res) {
     }
 
     const userId = user.id;
-    const name = user.name;
+    const nama = user.nama;
     const email = user.email;
     const access_token = jwt.sign(
-      { userId, name, email },
+      { userId, nama, email },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: '30s',
@@ -22,7 +22,7 @@ async function Login(req, res) {
     );
 
     const refresh_token = jwt.sign(
-      { userId, name, email },
+      { userId, nama, email },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: '1d',

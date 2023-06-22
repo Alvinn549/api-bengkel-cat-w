@@ -9,7 +9,23 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      name: {
+      nama: {
+        type: Sequelize.STRING,
+      },
+      no_telp: {
+        type: Sequelize.STRING,
+      },
+      alamat: {
+        type: Sequelize.TEXT,
+      },
+      jenis_k: {
+        type: Sequelize.STRING,
+      },
+      foto: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
+      role: {
         type: Sequelize.STRING,
       },
       email: {
@@ -21,6 +37,10 @@ module.exports = {
       refresh_token: {
         allowNull: true,
         type: Sequelize.STRING,
+      },
+      device_id: {
+        allowNull: true,
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,

@@ -5,7 +5,17 @@ const { RegisterSchema } = require('../validator/RegisterValidator');
 async function getAllUsers(req, res) {
   try {
     const users = await User.findAll({
-      attributes: ['id', 'name', 'email'],
+      attributes: [
+        'id',
+        'nama',
+        'no_telp',
+        'alamat',
+        'jenis_k',
+        'foto',
+        'email',
+        'role',
+        'device_id',
+      ],
     });
     res.json(users);
   } catch (error) {
@@ -21,10 +31,9 @@ async function registerUser(req, res) {
     return res.status(400).json({ message: errorMessage });
   }
 
-  const { name, email, password, confirm_password } = req.body;
+  const { nama, no_telp, alamat, jenis_k, email, password } = req.body;
 
-  // Check if user with the same email already exists
-  const existingUser = await User.findOne({ where: { email } });
+  const existingUser = await User.findOne({ where: { email: email } });
   if (existingUser) {
     return res
       .status(409)
@@ -32,13 +41,17 @@ async function registerUser(req, res) {
   }
 
   const salt = await bcrypt.genSalt();
-  const hashPassword = await bcrypt.hash(password, salt);
+  const hashedPassword = await bcrypt.hash(password, salt);
 
   try {
     const newUser = await User.create({
-      name: name,
+      nama: nama,
+      no_telp: no_telp,
+      alamat: alamat,
+      jenis_k: jenis_k,
+      role: 'pelanggan',
       email: email,
-      password: hashPassword,
+      password: hashedPassword,
     });
     res.json({
       message: 'Register Berhasil !',

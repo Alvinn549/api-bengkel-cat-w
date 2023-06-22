@@ -13,15 +13,27 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      name: DataTypes.STRING,
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      nama: DataTypes.STRING,
+      no_telp: DataTypes.STRING,
+      alamat: DataTypes.TEXT,
+      jenis_k: DataTypes.STRING,
+      foto: { type: DataTypes.STRING, allowNull: true },
+      role: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      refresh_token: DataTypes.STRING,
+      refresh_token: { type: DataTypes.STRING, allowNull: true },
+      device_id: { type: DataTypes.TEXT, allowNull: true },
     },
     {
       sequelize,
       modelName: 'User',
     }
   );
+
   return User;
 };
