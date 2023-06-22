@@ -14,6 +14,7 @@ async function getAllUsers(req, res) {
         'role',
         'device_id',
       ],
+      order: [['id', 'DESC']],
     });
     res.json(users);
   } catch (error) {
