@@ -18,6 +18,17 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+      {
+        nama: 'Tes Pelanggan',
+        no_telp: '3464343643',
+        alamat: 'Ponggok, Pacitan',
+        jenis_k: 'Laki-Laki',
+        role: 'pelanggan',
+        email: 'pelanggan@example.com',
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]);
   },
   down: (queryInterface, Sequelize) => {
