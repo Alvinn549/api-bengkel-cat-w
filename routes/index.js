@@ -1,12 +1,11 @@
 const express = require('express');
-const {
-  getAllUsers,
-  registerUser,
-  Login,
-  Loout,
-} = require('../controllers/userController');
+
+const { getAllUsers, registerUser } = require('../controllers/userController');
+
+const { Login, Logout } = require('../controllers/authentication');
 
 const { verifyToken } = require('../middleware/VerifyToken');
+
 const { refreshToken } = require('../controllers/refreshTokenController');
 
 const router = express.Router();
@@ -23,6 +22,6 @@ router.post('/login', Login);
 
 router.get('/token', refreshToken);
 
-router.delete('/logout', Loout);
+router.delete('/logout', Logout);
 
 module.exports = router;
