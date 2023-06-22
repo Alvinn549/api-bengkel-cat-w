@@ -1,13 +1,25 @@
 const express = require('express');
 const routes = require('./routes');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT;
+
+app.use(
+  cors({
+    credentials: true,
+    origin: '*',
+  })
+);
 
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.use(routes);
 
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  console.log(`Server listening on port http://localhost:${port}`);
 });
