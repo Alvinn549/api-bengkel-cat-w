@@ -5,19 +5,19 @@ module.exports = {
     await queryInterface.createTable('Kendaraans', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
-      userId: {
-        type: Sequelize.DataTypes.INTEGER,
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
         references: {
           model: {
             tableName: 'Users',
           },
           key: 'id',
         },
-        allowNull: false,
       },
       no_plat: {
         type: Sequelize.STRING,

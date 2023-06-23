@@ -5,6 +5,9 @@ const jwt = require('jsonwebtoken');
 async function Login(req, res) {
   try {
     const user = await User.findOne({ where: { email: req.body.email } });
+    if (!user) {
+      return res.status(404).json({ message: 'Email not found !' });
+    }
     const match = await bcrypt.compare(req.body.password, user.password);
     if (!match) {
       return res.status(400).json({ message: 'Wrong password !' });
@@ -47,8 +50,9 @@ async function Login(req, res) {
 
     res.json({ access_token });
   } catch (error) {
-    res.status(404).json({
-      message: 'Email tidak ditemukan !',
+    console.error(error);
+    res.status(500).json({
+      message: 'Internal error !',
     });
   }
 }

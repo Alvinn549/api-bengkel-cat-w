@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       User.hasMany(models.Kendaraan, {
-        foreignKey: 'userId',
+        foreignKey: 'user_id',
         as: 'Kendaraan',
       });
     }
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       role: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
-      refresh_token: { type: DataTypes.STRING, allowNull: true },
+      refresh_token: { type: DataTypes.TEXT, allowNull: true },
       device_id: { type: DataTypes.TEXT, allowNull: true },
     },
     {

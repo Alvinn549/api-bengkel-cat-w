@@ -10,14 +10,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Kendaraan.belongsTo(models.User, {
-        foreignKey: 'userId',
+        foreignKey: 'user_id',
         as: 'User',
       });
     }
   }
   Kendaraan.init(
     {
-      userId: DataTypes.INTEGER,
+      user_id: DataTypes.UUID,
       no_plat: DataTypes.STRING,
       merek: DataTypes.STRING,
       foto: { type: DataTypes.STRING, allowNull: true },
