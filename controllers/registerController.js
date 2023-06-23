@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../db/models');
 const { RegisterSchema } = require('../validator/RegisterValidator');
+const { faker } = require('@faker-js/faker/locale/id_ID');
 
 async function registerUser(req, res) {
   const { error } = RegisterSchema.validate(req.body);
@@ -23,6 +24,7 @@ async function registerUser(req, res) {
 
   try {
     const newUser = await User.create({
+      id: faker.string.uuid(),
       nama: nama,
       no_telp: no_telp,
       alamat: alamat,

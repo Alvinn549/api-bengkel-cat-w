@@ -26,9 +26,8 @@ async function getAllUser(req, res) {
 
 // * Get user by id
 async function getUserById(req, res) {
-  const userId = req.params.id; // Assuming the user ID is passed as a parameter in the URL
-
   try {
+    const userId = req.params.id;
     const user = await User.findByPk(userId, {
       attributes: [
         'id',
@@ -49,7 +48,6 @@ async function getUserById(req, res) {
     });
 
     if (!user) {
-      // User with the specified ID not found
       return res.status(404).json({ error: 'User not found' });
     }
 
