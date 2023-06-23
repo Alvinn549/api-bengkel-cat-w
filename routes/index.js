@@ -6,7 +6,10 @@ const { Login, Logout } = require('../controllers/authentication');
 
 const { refreshToken } = require('../controllers/refreshTokenController');
 
-const { getAllUsers } = require('../controllers/userController');
+const {
+  getAllUsers,
+  getAllUsersWithKendaraan,
+} = require('../controllers/userController');
 
 const { verifyToken } = require('../middleware/VerifyToken');
 const { isAdmin } = require('../middleware/Admin');
@@ -23,5 +26,6 @@ router.get('/token', refreshToken);
 router.delete('/logout', Logout);
 
 router.get('/users', verifyToken, isAdmin, getAllUsers);
+router.get('/tes', verifyToken, isAdmin, getAllUsersWithKendaraan);
 
 module.exports = router;
