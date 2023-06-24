@@ -16,11 +16,12 @@ async function Login(req, res) {
     const userId = user.id;
     const nama = user.nama;
     const email = user.email;
+
     const access_token = jwt.sign(
       { userId, nama, email },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: '30s',
+        expiresIn: '1d',
       }
     );
 
