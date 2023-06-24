@@ -18,14 +18,22 @@ const { isAdmin } = require('../middleware/Admin');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  res.send('Hello, World?');
+  res.send(`
+  <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <h1>Sheeesshh !</h1>
+  </div>
+`);
 });
 
 // * Route group /api
 router.group('/api', (router) => {
   // ? /api
   router.get('/', (req, res) => {
-    res.send('Welcome to API');
+    res.send(`
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+      <h1>Welcome to API !</h1>
+    </div>
+  `);
   });
 
   router.post('/register', registerUser); //     ? User register -> "GET"    -> /api/register
