@@ -1,11 +1,11 @@
-const bcrypt = require('bcrypt');
 const { User } = require('../db/models');
-const { RegisterSchema } = require('../validator/RegisterValidator');
+const bcrypt = require('bcrypt');
+const { registerValidationSchema } = require('../validator/RegisterValidator');
 const { faker } = require('@faker-js/faker/locale/id_ID');
 
 async function registerUser(req, res) {
   try {
-    const { error } = RegisterSchema.validate(req.body);
+    const { error } = registerValidationSchema.validate(req.body);
     if (error) {
       const errorMessage = error.details[0].message;
       return res.status(400).json({ message: errorMessage });

@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const RegisterSchema = Joi.object({
+const registerValidationSchema = Joi.object({
   nama: Joi.string().required(),
   no_telp: Joi.string().required(),
   alamat: Joi.string().required(),
@@ -15,4 +15,4 @@ const RegisterSchema = Joi.object({
     }),
 });
 
-module.exports = { RegisterSchema };
+module.exports = { registerValidationSchema };
