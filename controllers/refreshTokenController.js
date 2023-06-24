@@ -34,11 +34,12 @@ const refreshToken = async (req, res) => {
             expiresIn: '30s',
           }
         );
-        res.json({ access_token });
+        res.status(200).json({ access_token });
       }
     );
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error: error });
   }
 };
 

@@ -1,6 +1,6 @@
 const { User, Kendaraan } = require('../db/models');
 
-// * Get all user
+// ? Get all user
 async function getAllUser(req, res) {
   try {
     const users = await User.findAll({
@@ -17,14 +17,14 @@ async function getAllUser(req, res) {
       ],
       order: [['id', 'DESC']],
     });
-    res.json(users);
+    res.status(200).json(users);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }
 
-// * Get user by id
+// ? Get user by id
 async function getUserById(req, res) {
   try {
     const userId = req.params.id;
@@ -51,20 +51,20 @@ async function getUserById(req, res) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json(user);
+    res.status(200).json(user);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }
 
-// * Create new user
+// ? Create new user
 async function storeUser(req, res) {}
 
-// * Update user
+// ? Update user
 async function updateUser(req, res) {}
 
-// * Delete user
+// ? Delete user
 async function destroyUser(req, res) {}
 
 // ! Tes relasi
@@ -89,7 +89,7 @@ async function tes(req, res) {
         attributes: ['id', 'no_plat', 'merek'],
       },
     });
-    res.json(users);
+    res.status(200).json(users);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

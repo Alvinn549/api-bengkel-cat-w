@@ -58,30 +58,36 @@ async function Login(req, res) {
 }
 
 async function Logout(req, res) {
-  const refresh_token = req.cookies.refresh_token;
-  if (!refresh_token) {
-    return res.sendStatus(204);
-  }
-
-  const user = await User.findOne({
-    where: { refresh_token: refresh_token },
-  });
-
-  if (!user) {
-    return res.sendStatus(403);
-  }
-
-  const userId = user.id;
-  await User.update(
-    { refresh_token: null },
-    {
-      where: {
-        id: userId,
-      },
+  try {
+    const refresh_token = req.cookies.refresh_token;
+    if (!refresh_token) {
+      return res.sendStatus(204); // No Content
     }
-  );
-  res.clearCookie('refresh_token');
-  return res.sendStatus(200);
+
+    const user = await User.findOne({
+      where: { refresh_token: refresh_token },
+    });
+
+    if (!user) {
+      return res.sendStatus(403); // Forbidden
+    }
+
+    const userId = user.id;
+    await User.update(
+      { refresh_token: null },
+      {
+        where: {
+          id: userId,
+        },
+      }
+    );
+
+    res.clearCookie('refresh_token');
+    return res.sendStatus(200); // OK
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error!' });
+  }
 }
 
 module.exports = {
