@@ -18,8 +18,10 @@ async function getAllUser(req, res) {
         'email',
         'role',
         'device_id',
+        'createdAt',
+        'updatedAt',
       ],
-      order: [['id', 'DESC']],
+      order: [['createdAt', 'DESC']],
     });
     res.status(200).json(users);
   } catch (error) {
@@ -51,6 +53,7 @@ async function getUserById(req, res) {
         as: 'Kendaraan',
         attributes: ['id', 'no_plat', 'merek'],
       },
+      order: [['createdAt', 'DESC']],
     });
 
     if (!user) {
@@ -162,42 +165,10 @@ async function updateUser(req, res) {}
 // ? Delete user
 async function destroyUser(req, res) {}
 
-// ! Tes relasi
-async function tes(req, res) {
-  try {
-    const users = await User.findAll({
-      attributes: [
-        'id',
-        'nama',
-        'no_telp',
-        'alamat',
-        'jenis_k',
-        'foto',
-        'email',
-        'role',
-        'device_id',
-      ],
-      order: [['id', 'DESC']],
-      include: {
-        model: Kendaraan,
-        as: 'Kendaraan',
-        attributes: ['id', 'no_plat', 'merek'],
-      },
-    });
-    res.status(200).json(users);
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: 'Internal server error', message: error.message });
-  }
-}
-
 module.exports = {
   getAllUser,
   getUserById,
   storeUser,
   updateUser,
   destroyUser,
-  tes,
 };

@@ -5,12 +5,9 @@ const {
   storeUser,
   updateUser,
   destroyUser,
-  tes,
 } = require('../controllers/userController');
 
 const router = express.Router();
-
-router.get('/tes/', tes);
 
 router.get('/', getAllUser); //        ? Get all users  -> "GET"    -> /api/users
 router.post('/', storeUser); //        ? Create user    -> "POST"   -> /api/users

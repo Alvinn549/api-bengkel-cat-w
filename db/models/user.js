@@ -27,6 +27,8 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       refresh_token: { type: DataTypes.TEXT, allowNull: true },
       device_id: { type: DataTypes.TEXT, allowNull: true },
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
     },
     {
       sequelize,

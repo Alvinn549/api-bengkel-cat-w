@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
       no_plat: DataTypes.STRING,
       merek: DataTypes.STRING,
       foto: { type: DataTypes.STRING, allowNull: true },
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
     },
     {
       sequelize,
