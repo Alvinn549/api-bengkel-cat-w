@@ -1,6 +1,6 @@
 const express = require('express');
 const { registerUser } = require('../controllers/registerController');
-const { Login, Logout } = require('../controllers/authentication');
+const { login, logout } = require('../controllers/authentication');
 const { refreshToken } = require('../controllers/refreshTokenController');
 const { verifyToken } = require('../middleware/VerifyToken');
 const { isAdmin } = require('../middleware/Admin');
@@ -25,8 +25,8 @@ router.get('/api', (req, res) => {
 });
 
 router.post('/api/register', registerUser);
-router.post('/api/login', Login);
-router.delete('/api/logout', Logout);
+router.post('/api/login', login);
+router.delete('/api/logout', logout);
 router.get('/api/refresh-token', refreshToken);
 
 // ? /api/users

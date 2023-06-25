@@ -3,14 +3,13 @@ const jwt = require('jsonwebtoken');
 
 const refreshToken = async (req, res) => {
   try {
-    const refresh_token = req.cookies.refresh_token;
+    const { refresh_token } = req.cookies;
+
     if (!refresh_token) {
       return res.sendStatus(401);
     }
 
-    const user = await User.findOne({
-      where: { refresh_token: refresh_token },
-    });
+    const user = await User.findOne({ where: { refresh_token } });
 
     if (!user) {
       return res.sendStatus(403);
@@ -24,9 +23,7 @@ const refreshToken = async (req, res) => {
           return res.sendStatus(403);
         }
 
-        const userId = user.id;
-        const nama = user.nama;
-        const email = user.email;
+        const { id: userId, nama, email } = user;
         const access_token = jwt.sign(
           { userId, nama, email },
           process.env.ACCESS_TOKEN_SECRET,
@@ -34,6 +31,7 @@ const refreshToken = async (req, res) => {
             expiresIn: '30s',
           }
         );
+
         res.status(200).json({ access_token });
       }
     );

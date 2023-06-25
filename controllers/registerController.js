@@ -6,6 +6,7 @@ const { faker } = require('@faker-js/faker/locale/id_ID');
 async function registerUser(req, res) {
   try {
     const { error } = registerValidationSchema.validate(req.body);
+
     if (error) {
       const errorMessage = error.details[0].message;
       return res.status(400).json({ message: errorMessage });
@@ -13,9 +14,10 @@ async function registerUser(req, res) {
 
     const { nama, no_telp, alamat, jenis_k, email, password } = req.body;
 
-    const existingUser = await User.findOne({ where: { email: email } });
+    const existingUser = await User.findOne({ where: { email } });
+
     if (existingUser) {
-      return res.status(409).json({ message: 'Email sudah terdaftar !' });
+      return res.status(409).json({ message: 'Email sudah terdaftar!' });
     }
 
     const salt = await bcrypt.genSalt();
@@ -23,16 +25,17 @@ async function registerUser(req, res) {
 
     const newUser = await User.create({
       id: faker.string.uuid(),
-      nama: nama,
-      no_telp: no_telp,
-      alamat: alamat,
-      jenis_k: jenis_k,
+      nama,
+      no_telp,
+      alamat,
+      jenis_k,
       role: 'pelanggan',
-      email: email,
+      email,
       password: hashedPassword,
     });
+
     res.status(201).json({
-      message: 'Register berhasil !',
+      message: 'Register berhasil!',
       id: newUser.id,
     });
   } catch (error) {

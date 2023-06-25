@@ -61,7 +61,6 @@ async function getUserById(req, res) {
         as: 'Kendaraan',
         attributes: ['id', 'no_plat', 'merek'],
       },
-      order: [['createdAt', 'DESC']],
     });
 
     if (!user) {
@@ -80,15 +79,9 @@ async function getUserById(req, res) {
 // ? Create new user
 async function storeUser(req, res) {
   try {
-    const nama = req.body.nama;
-    const no_telp = req.body.no_telp;
-    const alamat = req.body.alamat;
-    const jenis_k = req.body.jenis_k;
-    const role = req.body.role;
-    const email = req.body.email;
-    const password = req.body.password;
-    var foto = null;
-    var foto_url = null;
+    const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
+    let foto = null;
+    let foto_url = null;
 
     const { error } = userValidationSchema.validate({
       nama,
@@ -99,52 +92,46 @@ async function storeUser(req, res) {
       email,
       password,
     });
+
     if (error) {
       const errorMessage = error.details[0].message;
       return res.status(400).json({ message: errorMessage });
     }
 
-    const existingUser = await User.findOne({ where: { email: email } });
+    const existingUser = await User.findOne({ where: { email } });
+
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: 'User dengan email ini sudah terdaftar !' });
+        .json({ message: 'User dengan email ini sudah terdaftar!' });
     }
 
-    if (req.files) {
+    if (req.files && req.files.foto) {
       const file = req.files.foto;
-      const fileSize = file.data.lenght;
+      const fileSize = file.data.length;
       const ext = path.extname(file.name);
       const fileName =
         new Date().getTime() + '-' + file.name.replace(/\s/g, '');
-      const filUrl = `${req.protocol}://${req.get(
+      const fileUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
 
-      const allowedType = ['.png', '.jpeg', '.jpg'];
+      const allowedTypes = ['.png', '.jpeg', '.jpg'];
 
-      if (!allowedType.includes(ext.toLowerCase())) {
-        return res.status(422).json({ message: 'Invalid images !' });
+      if (!allowedTypes.includes(ext.toLowerCase())) {
+        return res.status(422).json({ message: 'Invalid image format!' });
       }
 
       if (fileSize > 5000000) {
         return res
           .status(422)
-          .json({ message: 'Images must be less than 5MB !' });
+          .json({ message: 'Image size must be less than 5MB!' });
       }
 
-      file.mv(`./public/upload/images/${fileName}`, async (err) => {
-        if (err) {
-          console.log(err);
-          return res
-            .status(500)
-            .json({ error: 'Internal server error !', message: err.message });
-        }
-        // return res.status(200).json({ message: 'berhasil upload' });
-      });
+      await file.mv(`./public/upload/images/${fileName}`);
 
       foto = fileName;
-      foto_url = filUrl;
+      foto_url = fileUrl;
     }
 
     const salt = await bcrypt.genSalt();
@@ -152,122 +139,112 @@ async function storeUser(req, res) {
 
     const newUser = await User.create({
       id: faker.string.uuid(),
-      nama: nama,
-      no_telp: no_telp,
-      alamat: alamat,
-      jenis_k: jenis_k,
-      foto: foto,
-      foto_url: foto_url,
-      role: role,
-      email: email,
+      nama,
+      no_telp,
+      alamat,
+      jenis_k,
+      foto,
+      foto_url,
+      role,
+      email,
       password: hashedPassword,
     });
 
-    if (newUser) {
-      res.status(201).json({
-        message: 'User berhasil disimpan !',
-        id: newUser.id,
-      });
-    }
+    res.status(201).json({
+      message: 'User berhasil disimpan!',
+      id: newUser.id,
+    });
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: 'Internal server error!', message: error.message });
   }
 }
 
 // ? Update user
 async function updateUser(req, res) {
-  const userId = req.params.id;
-  const user = await User.findByPk(userId);
-  if (!user) {
-    res.status(404).json({ message: 'User tidak ditemukan !' });
-  }
-
-  const nama = req.body.nama;
-  const no_telp = req.body.no_telp;
-  const alamat = req.body.alamat;
-  const jenis_k = req.body.jenis_k;
-  const role = req.body.role;
-  const email = req.body.email;
-  const password = req.body.password;
-  var foto = null;
-  var foto_url = null;
-
-  const { error } = userValidationSchema.validate({
-    nama,
-    no_telp,
-    alamat,
-    jenis_k,
-    role,
-    email,
-    password,
-  });
-  if (error) {
-    const errorMessage = error.details[0].message;
-    return res.status(400).json({ message: errorMessage });
-  }
-
-  if (req.files) {
-    const file = req.files.foto;
-    const fileSize = file.data.lenght;
-    const ext = path.extname(file.name);
-    const fileName = new Date().getTime() + '-' + file.name.replace(/\s/g, '');
-    const filUrl = `${req.protocol}://${req.get(
-      'host'
-    )}/upload/images/${fileName}`;
-
-    const allowedType = ['.png', '.jpeg', '.jpg'];
-
-    if (!allowedType.includes(ext.toLowerCase())) {
-      return res.status(422).json({ message: 'Invalid images !' });
+  try {
+    const userId = req.params.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan !' });
     }
 
-    if (fileSize > 5000000) {
-      return res
-        .status(422)
-        .json({ message: 'Images must be less than 5MB !' });
+    const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
+
+    const { error } = userValidationSchema.validate({
+      nama,
+      no_telp,
+      alamat,
+      jenis_k,
+      role,
+      email,
+      password,
+    });
+
+    if (error) {
+      const errorMessage = error.details[0].message;
+      return res.status(400).json({ message: errorMessage });
     }
 
-    const saveFile = file.mv(
-      `./public/upload/images/${fileName}`,
-      async (err) => {
-        if (err) {
-          console.log(err);
-          return res
-            .status(500)
-            .json({ error: 'Internal server error !', message: err.message });
-        }
+    let foto = user.foto;
+    let foto_url = user.foto_url;
+
+    if (req.files && req.files.foto) {
+      const file = req.files.foto;
+      const fileSize = file.data.length;
+      const ext = path.extname(file.name);
+      const fileName =
+        new Date().getTime() + '-' + file.name.replace(/\s/g, '');
+      const fileUrl = `${req.protocol}://${req.get(
+        'host'
+      )}/upload/images/${fileName}`;
+
+      const allowedTypes = ['.png', '.jpeg', '.jpg'];
+
+      if (!allowedTypes.includes(ext.toLowerCase())) {
+        return res.status(422).json({ message: 'Invalid image format!' });
       }
-    );
 
-    fs.unlinkSync(`./public/upload/images/${user.foto}`);
+      if (fileSize > 5000000) {
+        return res
+          .status(422)
+          .json({ message: 'Image size must be less than 5MB!' });
+      }
 
-    foto = fileName;
-    foto_url = filUrl;
-  }
+      await file.mv(`./public/upload/images/${fileName}`);
 
-  const salt = await bcrypt.genSalt();
-  const hashedPassword = await bcrypt.hash(password, salt);
+      fs.unlinkSync(`./public/upload/images/${user.foto}`);
 
-  const updateUser = user.update({
-    nama: nama,
-    no_telp: no_telp,
-    alamat: alamat,
-    jenis_k: jenis_k,
-    foto: foto,
-    foto_url: foto_url,
-    role: role,
-    email: email,
-    password: hashedPassword,
-  });
+      foto = fileName;
+      foto_url = fileUrl;
+    }
 
-  if (updateUser) {
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await user.update({
+      nama,
+      no_telp,
+      alamat,
+      jenis_k,
+      foto,
+      foto_url,
+      role,
+      email,
+      password: hashedPassword,
+    });
+
     res.status(201).json({
-      message: 'User berhasil diperbarui !',
+      message: 'User berhasil diperbarui!',
       id: user.id,
     });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: 'Internal server error!', message: error.message });
   }
 }
 
