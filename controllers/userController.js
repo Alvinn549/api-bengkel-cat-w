@@ -103,15 +103,24 @@ async function storeUser(req, res) {
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: 'User dengan email ini sudah terdaftar!' });
+        .json({ message: 'User dengan email ini sudah terdaftar !' });
     }
 
     if (req.files && req.files.foto) {
       const file = req.files.foto;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      const fileName =
-        new Date().getTime() + '-' + file.name.replace(/\s/g, '');
+      const currentDate = new Date().toISOString().split('T')[0];
+      const currentTime = new Date()
+        .toLocaleTimeString('id-ID', {
+          hour12: false,
+          hour: 'numeric',
+          minute: 'numeric',
+        })
+        .replace(':', '.');
+
+      const originalFileName = file.name.replace(/\s/g, '');
+      const fileName = `${currentDate}-${currentTime}-${originalFileName}`;
       const fileUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
@@ -188,6 +197,13 @@ async function updateUser(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser && existingUser.id !== user.id) {
+      return res
+        .status(409)
+        .json({ message: 'User dengan email ini sudah terdaftar!' });
+    }
+
     let foto = user.foto;
     let foto_url = user.foto_url;
 
@@ -195,8 +211,17 @@ async function updateUser(req, res) {
       const file = req.files.foto;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      const fileName =
-        new Date().getTime() + '-' + file.name.replace(/\s/g, '');
+      const currentDate = new Date().toISOString().split('T')[0];
+      const currentTime = new Date()
+        .toLocaleTimeString('id-ID', {
+          hour12: false,
+          hour: 'numeric',
+          minute: 'numeric',
+        })
+        .replace(':', '.');
+
+      const originalFileName = file.name.replace(/\s/g, '');
+      const fileName = `${currentDate}-${currentTime}-${originalFileName}`;
       const fileUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
@@ -215,7 +240,9 @@ async function updateUser(req, res) {
 
       await file.mv(`./public/upload/images/${fileName}`);
 
-      fs.unlinkSync(`./public/upload/images/${user.foto}`);
+      if (foto !== fileName) {
+        fs.unlinkSync(`./public/upload/images/${user.foto}`);
+      }
 
       foto = fileName;
       foto_url = fileUrl;
