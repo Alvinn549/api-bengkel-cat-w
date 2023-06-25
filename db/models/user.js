@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       alamat: DataTypes.TEXT,
       jenis_k: DataTypes.STRING,
       foto: { type: DataTypes.STRING, allowNull: true },
+      foto_url: { type: DataTypes.TEXT, allowNull: true },
       role: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,

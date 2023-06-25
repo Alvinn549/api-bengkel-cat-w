@@ -4,7 +4,7 @@ const { Login, Logout } = require('../controllers/authentication');
 const { refreshToken } = require('../controllers/refreshTokenController');
 const { verifyToken } = require('../middleware/VerifyToken');
 const { isAdmin } = require('../middleware/Admin');
-const userRoutes = require('./userRoutes');
+const UserRoutes = require('./UserRoutes');
 
 const router = express.Router();
 
@@ -30,6 +30,6 @@ router.delete('/api/logout', Logout);
 router.get('/api/refresh-token', refreshToken);
 
 // ? /api/users
-router.use('/api/users', verifyToken, isAdmin, userRoutes);
+router.use('/api/users', verifyToken, isAdmin, UserRoutes);
 
 module.exports = router;

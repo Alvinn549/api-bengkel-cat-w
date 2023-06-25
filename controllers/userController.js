@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const { userValidationSchema } = require('../validator/UserValidator');
 const { faker } = require('@faker-js/faker/locale/id_ID');
 const path = require('path');
+const fs = require('fs');
 
 // ? Get all user
 async function getAllUser(req, res) {
@@ -15,6 +16,7 @@ async function getAllUser(req, res) {
         'alamat',
         'jenis_k',
         'foto',
+        'foto_url',
         'email',
         'role',
         'device_id',
@@ -49,6 +51,7 @@ async function getUserById(req, res) {
         'alamat',
         'jenis_k',
         'foto',
+        'foto_url',
         'email',
         'role',
         'device_id',
@@ -85,13 +88,14 @@ async function storeUser(req, res) {
     const email = req.body.email;
     const password = req.body.password;
     var foto = null;
+    var foto_url = null;
 
     if (req.files) {
       const file = req.files.foto;
       const fileSize = file.data.lenght;
       const ext = path.extname(file.name);
       const fileName = new Date().getTime() + '-' + file.name;
-      const fotoUrl = `${req.protocol}://${req.get(
+      const filUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
 
@@ -117,7 +121,8 @@ async function storeUser(req, res) {
         // return res.status(200).json({ message: 'berhasil upload' });
       });
 
-      foto = fotoUrl;
+      foto = fileName;
+      foto_url = filUrl;
     }
 
     const { error } = userValidationSchema.validate({
@@ -148,6 +153,7 @@ async function storeUser(req, res) {
       alamat: alamat,
       jenis_k: jenis_k,
       foto: foto,
+      foto_url: foto_url,
       role: role,
       email: email,
       password: hashedPassword,

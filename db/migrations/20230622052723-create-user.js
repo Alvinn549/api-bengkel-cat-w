@@ -25,6 +25,10 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING,
       },
+      foto_url: {
+        allowNull: true,
+        type: Sequelize.TEXT,
+      },
       role: {
         type: Sequelize.STRING,
       },
