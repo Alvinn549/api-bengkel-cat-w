@@ -21,6 +21,11 @@ async function getAllUser(req, res) {
         'createdAt',
         'updatedAt',
       ],
+      include: {
+        model: Kendaraan,
+        as: 'Kendaraan',
+        attributes: ['id', 'no_plat', 'merek'],
+      },
       order: [['createdAt', 'DESC']],
     });
     res.status(200).json(users);
