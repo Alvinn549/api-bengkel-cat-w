@@ -38,8 +38,10 @@ const refreshToken = async (req, res) => {
       }
     );
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: error });
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 };
 

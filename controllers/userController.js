@@ -24,7 +24,9 @@ async function getAllUser(req, res) {
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 }
 
@@ -58,53 +60,58 @@ async function getUserById(req, res) {
     res.status(200).json(user);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 }
 
 // ? Create new user
 async function storeUser(req, res) {
-  const nama = req.body.nama;
-  const no_telp = req.body.no_telp;
-  const alamat = req.body.alamat;
-  const jenis_k = req.body.jenis_k;
-  const role = req.body.role;
-  const email = req.body.email;
-  const password = req.body.password;
-  var foto = null;
-
-  if (req.files) {
-    const file = req.files.foto;
-    const fileSize = file.data.lenght;
-    const ext = path.extname(file.name);
-    const fileName = new Date().getTime() + '-' + file.name;
-    const fotoUrl = `${req.protocol}://${req.get(
-      'host'
-    )}/upload/images/${fileName}`;
-
-    const allowedType = ['.png', '.jpeg', '.jpg'];
-
-    if (!allowedType.includes(ext.toLowerCase())) {
-      return res.status(422).json({ message: 'Invalid images !' });
-    }
-
-    if (fileSize > 5000000) {
-      return res
-        .status(422)
-        .json({ message: 'Images must be less than 5MB !' });
-    }
-
-    file.mv(`./public/upload/images/${fileName}`, async (err) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: err.message });
-      }
-      // return res.status(200).json({ message: 'berhasil upload' });
-    });
-
-    foto = fotoUrl;
-  }
   try {
+    const nama = req.body.nama;
+    const no_telp = req.body.no_telp;
+    const alamat = req.body.alamat;
+    const jenis_k = req.body.jenis_k;
+    const role = req.body.role;
+    const email = req.body.email;
+    const password = req.body.password;
+    var foto = null;
+
+    if (req.files) {
+      const file = req.files.foto;
+      const fileSize = file.data.lenght;
+      const ext = path.extname(file.name);
+      const fileName = new Date().getTime() + '-' + file.name;
+      const fotoUrl = `${req.protocol}://${req.get(
+        'host'
+      )}/upload/images/${fileName}`;
+
+      const allowedType = ['.png', '.jpeg', '.jpg'];
+
+      if (!allowedType.includes(ext.toLowerCase())) {
+        return res.status(422).json({ message: 'Invalid images !' });
+      }
+
+      if (fileSize > 5000000) {
+        return res
+          .status(422)
+          .json({ message: 'Images must be less than 5MB !' });
+      }
+
+      file.mv(`./public/upload/images/${fileName}`, async (err) => {
+        if (err) {
+          console.log(err);
+          return res
+            .status(500)
+            .json({ error: 'Internal server error !', message: err.message });
+        }
+        // return res.status(200).json({ message: 'berhasil upload' });
+      });
+
+      foto = fotoUrl;
+    }
+
     const { error } = userValidationSchema.validate({
       nama,
       no_telp,
@@ -142,10 +149,10 @@ async function storeUser(req, res) {
       id: newUser.id,
     });
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
     res
       .status(500)
-      .json({ message: 'Internal server error', error: error.message });
+      .json({ error: 'Internal server error', message: error.message });
   }
 }
 
@@ -180,7 +187,9 @@ async function tes(req, res) {
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 }
 

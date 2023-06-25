@@ -52,9 +52,9 @@ async function Login(req, res) {
     res.json({ access_token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      message: 'Internal error !',
-    });
+    res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 }
 
@@ -84,10 +84,12 @@ async function Logout(req, res) {
     );
 
     res.clearCookie('refresh_token');
-    return res.sendStatus(200); // OK
+    return res.sendStatus(200);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal Server Error!' });
+    res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 }
 

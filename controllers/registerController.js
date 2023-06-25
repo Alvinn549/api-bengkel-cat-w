@@ -37,7 +37,9 @@ async function registerUser(req, res) {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error', error: error });
+    res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 }
 
