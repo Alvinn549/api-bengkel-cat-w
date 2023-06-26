@@ -25,7 +25,7 @@ async function getAllUser(req, res) {
       ],
       include: {
         model: Kendaraan,
-        as: 'Kendaraan',
+        as: 'kendaraan',
         attributes: ['id', 'no_plat', 'merek'],
       },
       order: [['createdAt', 'DESC']],
@@ -59,7 +59,7 @@ async function getUserById(req, res) {
       ],
       include: {
         model: Kendaraan,
-        as: 'Kendaraan',
+        as: 'kendaraan',
         attributes: ['id', 'no_plat', 'merek'],
       },
     });
