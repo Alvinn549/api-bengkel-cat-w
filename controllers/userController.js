@@ -5,7 +5,7 @@ const { faker } = require('@faker-js/faker/locale/id_ID');
 const path = require('path');
 const fs = require('fs');
 
-// ? Get all user
+// Get all users
 async function getAllUser(req, res) {
   try {
     const users = await User.findAll({
@@ -30,6 +30,7 @@ async function getAllUser(req, res) {
       },
       order: [['createdAt', 'DESC']],
     });
+
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
@@ -39,7 +40,7 @@ async function getAllUser(req, res) {
   }
 }
 
-// ? Get user by id
+// Get user by ID
 async function getUserById(req, res) {
   try {
     const userId = req.params.id;
@@ -76,7 +77,7 @@ async function getUserById(req, res) {
   }
 }
 
-// ? Create new user
+// Create new user
 async function storeUser(req, res) {
   try {
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
@@ -103,15 +104,15 @@ async function storeUser(req, res) {
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: 'User dengan email ini sudah terdaftar !' });
+        .json({ message: 'User dengan email ini sudah terdaftar!' });
     }
 
     if (req.files && req.files.foto) {
       const file = req.files.foto;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      const fileName =
-        new Date().getTime() + '-' + file.name.replace(/\s/g, '');
+      const timestamp = Date.now();
+      const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
       const fileUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
@@ -162,13 +163,14 @@ async function storeUser(req, res) {
   }
 }
 
-// ? Update user
+// Update user
 async function updateUser(req, res) {
   try {
     const userId = req.params.id;
     const user = await User.findByPk(userId);
+
     if (!user) {
-      return res.status(404).json({ message: 'User tidak ditemukan !' });
+      return res.status(404).json({ message: 'User tidak ditemukan!' });
     }
 
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
@@ -189,6 +191,7 @@ async function updateUser(req, res) {
     }
 
     const existingUser = await User.findOne({ where: { email } });
+
     if (existingUser && existingUser.id !== user.id) {
       return res
         .status(409)
@@ -202,8 +205,8 @@ async function updateUser(req, res) {
       const file = req.files.foto;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      const fileName =
-        new Date().getTime() + '-' + file.name.replace(/\s/g, '');
+      const timestamp = Date.now();
+      const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
       const fileUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
@@ -262,13 +265,14 @@ async function updateUser(req, res) {
   }
 }
 
-// ? Delete user
+// Delete user
 async function destroyUser(req, res) {
   try {
     const userId = req.params.id;
     const user = await User.findByPk(userId);
+
     if (!user) {
-      return res.status(404).json({ message: 'User tidak ditemukan !' });
+      return res.status(404).json({ message: 'User tidak ditemukan!' });
     }
 
     if (user.foto) {
