@@ -33,4 +33,7 @@ router.get('/api/refresh-token', refreshToken);
 // ? /api/users
 router.use('/api/users', verifyToken, isAdmin, userRoutes);
 
+// ? /api/kendaraans
+router.use('/api/kendaraans', verifyToken, isAdmin, kendaraanRoutes);
+
 module.exports = router;
