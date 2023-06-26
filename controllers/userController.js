@@ -110,17 +110,8 @@ async function storeUser(req, res) {
       const file = req.files.foto;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      const currentDate = new Date().toISOString().split('T')[0];
-      const currentTime = new Date()
-        .toLocaleTimeString('id-ID', {
-          hour12: false,
-          hour: 'numeric',
-          minute: 'numeric',
-        })
-        .replace(':', '.');
-
-      const originalFileName = file.name.replace(/\s/g, '');
-      const fileName = `${currentDate}-${currentTime}-${originalFileName}`;
+      const fileName =
+        new Date().getTime() + '-' + file.name.replace(/\s/g, '');
       const fileUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
@@ -211,17 +202,8 @@ async function updateUser(req, res) {
       const file = req.files.foto;
       const fileSize = file.data.length;
       const ext = path.extname(file.name);
-      const currentDate = new Date().toISOString().split('T')[0];
-      const currentTime = new Date()
-        .toLocaleTimeString('id-ID', {
-          hour12: false,
-          hour: 'numeric',
-          minute: 'numeric',
-        })
-        .replace(':', '.');
-
-      const originalFileName = file.name.replace(/\s/g, '');
-      const fileName = `${currentDate}-${currentTime}-${originalFileName}`;
+      const fileName =
+        new Date().getTime() + '-' + file.name.replace(/\s/g, '');
       const fileUrl = `${req.protocol}://${req.get(
         'host'
       )}/upload/images/${fileName}`;
@@ -241,7 +223,12 @@ async function updateUser(req, res) {
       await file.mv(`./public/upload/images/${fileName}`);
 
       if (foto !== fileName) {
-        fs.unlinkSync(`./public/upload/images/${user.foto}`);
+        if (user.foto) {
+          const filePath = `./public/upload/images/${user.foto}`;
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        }
       }
 
       foto = fileName;
@@ -276,7 +263,34 @@ async function updateUser(req, res) {
 }
 
 // ? Delete user
-async function destroyUser(req, res) {}
+async function destroyUser(req, res) {
+  try {
+    const userId = req.params.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan !' });
+    }
+
+    if (user.foto) {
+      const filePath = `./public/upload/images/${user.foto}`;
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    await user.destroy();
+
+    res.status(200).json({
+      message: 'User berhasil dihapus!',
+      id: userId,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: 'Internal server error!', message: error.message });
+  }
+}
 
 module.exports = {
   getAllUser,
