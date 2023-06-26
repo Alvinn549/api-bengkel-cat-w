@@ -9,6 +9,13 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT;
 
+app.disable('x-powered-by');
+
+app.use((req, res, next) => {
+  res.setHeader('X-Powered-By', 'Blood, Sweat, and Tears ');
+  next();
+});
+
 app.use(
   cors({
     credentials: true,
