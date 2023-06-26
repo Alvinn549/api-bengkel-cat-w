@@ -12,6 +12,8 @@ module.exports = {
       user_id: faker.helpers.arrayElement(users).id,
       no_plat: faker.vehicle.vrm(),
       merek: faker.vehicle.vehicle(),
+      foto: faker.vehicle.manufacturer() + '.jpg',
+      foto_url: faker.image.urlLoremFlickr({ category: 'transport' }),
       createdAt: new Date(),
       updatedAt: new Date(),
     }));
