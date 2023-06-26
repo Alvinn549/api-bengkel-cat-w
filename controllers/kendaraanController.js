@@ -41,7 +41,30 @@ async function getAllKendaraan(req, res) {
 // Get kendaraan by ID
 async function getKendaraanById(req, res) {
   try {
-    res.status(200).json({ msg: 'getKendaraanById' });
+    const kendaraanId = req.params.id;
+    const kendaraan = await Kendaraan.findByPk(kendaraanId, {
+      attributes: [
+        'id',
+        'user_id',
+        'no_plat',
+        'merek',
+        'foto',
+        'foto_url',
+        'createdAt',
+        'updatedAt',
+      ],
+      include: {
+        model: User,
+        as: 'pemilik',
+        attributes: ['id', 'nama', 'no_telp', 'alamat', 'role'],
+      },
+    });
+
+    if (!kendaraan) {
+      return res.status(404).json({ error: 'Kendaraan tidak ditemukan!' });
+    }
+
+    res.status(200).json(kendaraan);
   } catch (error) {
     console.error(error);
     res
