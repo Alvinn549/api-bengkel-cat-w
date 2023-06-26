@@ -3,7 +3,7 @@ const routes = require('./routes');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const FileUpload = require('express-fileupload');
+const fileUpload = require('express-fileupload');
 require('dotenv').config();
 
 const app = express();
@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 app.use(bodyParser.json());
 
-app.use(FileUpload());
+app.use(fileUpload());
 
 app.use(routes);
 
