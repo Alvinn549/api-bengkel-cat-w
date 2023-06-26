@@ -10,6 +10,7 @@ const fs = require('fs');
 // Get all kendaraans
 async function getAllKendaraan(req, res) {
   try {
+    res.status(200).json({ msg: 'getAllKendaraan' });
   } catch (error) {
     console.error(error);
     res
@@ -21,6 +22,7 @@ async function getAllKendaraan(req, res) {
 // Get kendaraan by ID
 async function getKendaraanById(req, res) {
   try {
+    res.status(200).json({ msg: 'getKendaraanById' });
   } catch (error) {
     console.error(error);
     res
@@ -32,6 +34,7 @@ async function getKendaraanById(req, res) {
 // Create new kendaraan
 async function storeKendaraan(req, res) {
   try {
+    res.status(200).json({ msg: 'storeKendaraan' });
   } catch (error) {
     console.error(error);
     res
@@ -43,6 +46,7 @@ async function storeKendaraan(req, res) {
 // Update kendaraan
 async function updateKendaraan(req, res) {
   try {
+    res.status(200).json({ msg: 'updateKendaraan' });
   } catch (error) {
     console.error(error);
     res
@@ -54,6 +58,7 @@ async function updateKendaraan(req, res) {
 // Delete kendaraan
 async function destroyKendaraan(req, res) {
   try {
+    res.status(200).json({ msg: 'destroyKendaraan' });
   } catch (error) {
     console.error(error);
     res
