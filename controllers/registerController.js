@@ -1,6 +1,6 @@
 const { User } = require('../db/models');
 const bcrypt = require('bcrypt');
-const { registerValidationSchema } = require('../validator/RegisterValidator');
+const { registerValidationSchema } = require('../validator/registerValidator');
 const { faker } = require('@faker-js/faker/locale/id_ID');
 
 async function registerUser(req, res) {

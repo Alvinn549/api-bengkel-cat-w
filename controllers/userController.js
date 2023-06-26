@@ -1,6 +1,6 @@
 const { User, Kendaraan } = require('../db/models');
 const bcrypt = require('bcrypt');
-const { userValidationSchema } = require('../validator/UserValidator');
+const { userValidationSchema } = require('../validator/userValidator');
 const { faker } = require('@faker-js/faker/locale/id_ID');
 const path = require('path');
 const fs = require('fs');
