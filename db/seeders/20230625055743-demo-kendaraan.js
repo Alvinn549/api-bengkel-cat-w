@@ -3,12 +3,11 @@
 const { faker } = require('@faker-js/faker/locale/id_ID');
 const { User } = require('../models');
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  up: async (queryInterface, Sequelize) => {
     const users = await User.findAll();
 
-    const fakeKendaraans = Array.from({ length: 15 }).map(() => ({
+    const fakeKendaraan = Array.from({ length: 30 }).map(() => ({
       id: faker.string.uuid(),
       user_id: faker.helpers.arrayElement(users).id,
       no_plat: faker.vehicle.vrm(),
@@ -16,10 +15,11 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
     }));
-    await queryInterface.bulkInsert('Kendaraans', fakeKendaraans, {});
+
+    await queryInterface.bulkInsert('Kendaraans', fakeKendaraan, {});
   },
 
-  async down(queryInterface, Sequelize) {
+  down: async (queryInterface, Sequelize) => {
     await queryInterface.bulkDelete('Kendaraans', null, {});
   },
 };

@@ -13,10 +13,10 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: {
-            tableName: 'Users',
-          },
+          model: 'Users',
           key: 'id',
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
         },
       },
       no_plat: {

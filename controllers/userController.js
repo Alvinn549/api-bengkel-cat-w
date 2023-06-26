@@ -282,6 +282,10 @@ async function destroyUser(req, res) {
       }
     }
 
+    await Kendaraan.destroy({
+      where: { user_id: userId },
+    });
+
     await user.destroy();
 
     res.status(200).json({
