@@ -10,7 +10,26 @@ const fs = require('fs');
 // Get all kendaraans
 async function getAllKendaraan(req, res) {
   try {
-    res.status(200).json({ msg: 'getAllKendaraan' });
+    const kendaraans = await Kendaraan.findAll({
+      attributes: [
+        'id',
+        'user_id',
+        'no_plat',
+        'merek',
+        'foto',
+        'foto_url',
+        'createdAt',
+        'updatedAt',
+      ],
+      include: {
+        model: User,
+        as: 'User',
+        attributes: ['id', 'nama', 'no_telp', 'alamat'],
+      },
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json(kendaraans);
   } catch (error) {
     console.error(error);
     res
