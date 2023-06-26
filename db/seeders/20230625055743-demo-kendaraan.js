@@ -7,7 +7,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     const users = await User.findAll();
 
-    const fakeKendaraan = Array.from({ length: 30 }).map(() => ({
+    const fakeKendaraan = Array.from({ length: 50 }).map(() => ({
       id: faker.string.uuid(),
       user_id: faker.helpers.arrayElement(users).id,
       no_plat: faker.vehicle.vrm(),
