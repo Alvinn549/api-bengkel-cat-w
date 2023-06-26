@@ -12,7 +12,7 @@ module.exports = {
       user_id: faker.helpers.arrayElement(users).id,
       no_plat: faker.vehicle.vrm(),
       merek: faker.vehicle.vehicle(),
-      foto: faker.vehicle.manufacturer() + '.jpg',
+      foto: faker.vehicle.vehicle().replace(/\s/g, '') + '.jpg',
       foto_url: faker.image.urlLoremFlickr({ category: 'transport' }),
       createdAt: new Date(),
       updatedAt: new Date(),
