@@ -5,7 +5,7 @@ const { User } = require('../models');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const users = await User.findAll();
+    const users = await User.findAll({ where: { role: 'pelanggan' } });
 
     const fakeKendaraan = Array.from({ length: 50 }).map(() => ({
       id: faker.string.uuid(),
