@@ -5,6 +5,7 @@ const { refreshToken } = require('../controllers/refreshTokenController');
 const { verifyToken } = require('../middleware/verifyToken');
 const { isAdmin } = require('../middleware/isAdmin');
 const userRoutes = require('./userRoutes');
+const kendaraanRoutes = require('./kendaraanRoutes');
 
 const router = express.Router();
 
