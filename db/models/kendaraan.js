@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
           name: 'user_id',
           allowNull: false,
         },
-        as: 'User',
+        as: 'pemilik',
       });
     }
   }

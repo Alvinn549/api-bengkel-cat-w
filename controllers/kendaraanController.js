@@ -23,8 +23,8 @@ async function getAllKendaraan(req, res) {
       ],
       include: {
         model: User,
-        as: 'User',
-        attributes: ['id', 'nama', 'no_telp', 'alamat'],
+        as: 'pemilik',
+        attributes: ['id', 'nama', 'no_telp', 'alamat', 'role'],
       },
       order: [['createdAt', 'DESC']],
     });
