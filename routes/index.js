@@ -2,8 +2,8 @@ const express = require('express');
 const { registerUser } = require('../controllers/registerController');
 const { login, logout } = require('../controllers/authentication');
 const { refreshToken } = require('../controllers/refreshTokenController');
-const { verifyToken } = require('../middleware/VerifyToken');
-const { isAdmin } = require('../middleware/Admin');
+const { verifyToken } = require('../middleware/verifyToken');
+const { isAdmin } = require('../middleware/isAdmin');
 const UserRoutes = require('./UserRoutes');
 
 const router = express.Router();
