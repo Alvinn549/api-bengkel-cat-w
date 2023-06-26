@@ -253,7 +253,7 @@ async function updateUser(req, res) {
       password: hashedPassword,
     });
 
-    res.status(201).json({
+    res.status(200).json({
       message: 'User berhasil diperbarui!',
       id: user.id,
     });
