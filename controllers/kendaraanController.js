@@ -2,7 +2,7 @@ const { User, Kendaraan } = require('../db/models');
 const {
   kendaraanValidationSchema,
 } = require('../validator/kendaraanValidator');
-const { faker } = require('@faker-js/faker/locale/id_ID');
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
 
@@ -109,7 +109,7 @@ async function storeKendaraan(req, res) {
     var foto_url = fileUrl;
 
     const newKendaraaan = await Kendaraan.create({
-      id: faker.string.uuid(),
+      id: uuidv4(),
       user_id,
       no_plat,
       merek,

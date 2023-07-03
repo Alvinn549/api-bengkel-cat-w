@@ -1,7 +1,7 @@
 const { User, Kendaraan } = require('../db/models');
 const bcrypt = require('bcrypt');
 const { userValidationSchema } = require('../validator/userValidator');
-const { faker } = require('@faker-js/faker/locale/id_ID');
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
 
@@ -113,7 +113,7 @@ async function storeUser(req, res) {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await User.create({
-      id: faker.string.uuid(),
+      id: uuidv4(),
       nama,
       no_telp,
       alamat,
