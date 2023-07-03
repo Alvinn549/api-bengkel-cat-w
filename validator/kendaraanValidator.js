@@ -1,13 +1,9 @@
 const Joi = require('joi');
 
 const kendaraanValidationSchema = Joi.object({
-  nama: Joi.string().required(),
-  no_telp: Joi.string().required(),
-  alamat: Joi.string().required(),
-  jenis_k: Joi.string().required(),
-  role: Joi.string().required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(8).required(),
+  user_id: Joi.string().required(),
+  no_plat: Joi.string().required(),
+  merek: Joi.string().required(),
 });
 
 module.exports = { kendaraanValidationSchema };

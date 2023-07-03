@@ -31,10 +31,10 @@ async function getAllUser(req, res) {
       order: [['createdAt', 'DESC']],
     });
 
-    res.status(200).json(users);
+    return res.status(200).json(users);
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }
@@ -68,10 +68,10 @@ async function getUserById(req, res) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }
@@ -81,8 +81,8 @@ async function getUserById(req, res) {
 async function storeUser(req, res) {
   try {
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
-    let foto = null;
-    let foto_url = null;
+    var foto = null;
+    var foto_url = null;
 
     const { error } = userValidationSchema.validate({
       nama,
@@ -151,13 +151,13 @@ async function storeUser(req, res) {
       password: hashedPassword,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'User berhasil disimpan!',
       id: newUser.id,
     });
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error!', message: error.message });
   }
@@ -253,13 +253,13 @@ async function updateUser(req, res) {
       password: hashedPassword,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'User berhasil diperbarui!',
       id: user.id,
     });
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error!', message: error.message });
   }
@@ -288,13 +288,13 @@ async function destroyUser(req, res) {
 
     await user.destroy();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'User berhasil dihapus!',
       id: userId,
     });
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error!', message: error.message });
   }
