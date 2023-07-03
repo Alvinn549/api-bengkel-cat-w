@@ -122,7 +122,13 @@ async function storeKendaraan(req, res) {
         .json({ message: 'Image size must be less than 5MB!' });
     }
 
-    await file.mv(`./public/upload/images/${fileName}`);
+    await file.mv(`./public/upload/images/${fileName}`, async (err) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ error: 'Internal server error!', message: err.message });
+      }
+    });
 
     var foto = fileName;
     var foto_url = fileUrl;

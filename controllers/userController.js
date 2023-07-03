@@ -129,7 +129,13 @@ async function storeUser(req, res) {
           .json({ message: 'Image size must be less than 5MB!' });
       }
 
-      await file.mv(`./public/upload/images/${fileName}`);
+      await file.mv(`./public/upload/images/${fileName}`, async (err) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ error: 'Internal server error!', message: err.message });
+        }
+      });
 
       foto = fileName;
       foto_url = fileUrl;
@@ -223,13 +229,28 @@ async function updateUser(req, res) {
           .json({ message: 'Image size must be less than 5MB!' });
       }
 
-      await file.mv(`./public/upload/images/${fileName}`);
+      await file.mv(`./public/upload/images/${fileName}`, async (err) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ error: 'Internal server error!', message: err.message });
+        }
+      });
 
       if (foto !== fileName) {
         if (user.foto) {
           const filePath = `./public/upload/images/${user.foto}`;
           if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+            await fs.unlinkSync(filePath, async (err) => {
+              if (err) {
+                return res
+                  .status(500)
+                  .json({
+                    error: 'Internal server error!',
+                    message: err.message,
+                  });
+              }
+            });
           }
         }
       }
@@ -278,7 +299,13 @@ async function destroyUser(req, res) {
     if (user.foto) {
       const filePath = `./public/upload/images/${user.foto}`;
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+        await fs.unlinkSync(filePath, async (err) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ error: 'Internal server error!', message: err.message });
+          }
+        });
       }
     }
 
