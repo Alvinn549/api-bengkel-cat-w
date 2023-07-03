@@ -4,6 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
+      // Has Many
       User.hasMany(models.Kendaraan, {
         foreignKey: {
           name: 'user_id',
