@@ -34,7 +34,7 @@ async function registerUser(req, res) {
       password: hashedPassword,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Register berhasil!',
       id: newUser.id,
     });

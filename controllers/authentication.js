@@ -37,14 +37,13 @@ async function login(req, res) {
 
     await User.update({ refresh_token }, { where: { id: userId } });
 
-    res.cookie('refresh_token', refresh_token, {
+    return res.cookie('refresh_token', refresh_token, {
       httpOnly: true,
       maxAge: 24 * 60 * 1000,
     });
-    res.json({ access_token });
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }
@@ -67,11 +66,10 @@ async function logout(req, res) {
     const userId = user.id;
     await User.update({ refresh_token: null }, { where: { id: userId } });
 
-    res.clearCookie('refresh_token');
-    return res.sendStatus(200);
+    return res.clearCookie('refresh_token');
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }
