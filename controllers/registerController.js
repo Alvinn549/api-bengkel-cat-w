@@ -17,7 +17,9 @@ async function registerUser(req, res) {
     const existingUser = await User.findOne({ where: { email } });
 
     if (existingUser) {
-      return res.status(409).json({ message: 'Email sudah terdaftar!' });
+      return res
+        .status(409)
+        .json({ message: 'Email yang anda masukkan sudah terdaftar!' });
     }
 
     const salt = await bcrypt.genSalt();
@@ -40,7 +42,7 @@ async function registerUser(req, res) {
     });
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }
