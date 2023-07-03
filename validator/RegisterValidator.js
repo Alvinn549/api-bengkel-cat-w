@@ -9,7 +9,7 @@ const registerValidationSchema = Joi.object({
   password: Joi.string().min(8).required(),
   confirm_password: Joi.string().valid(Joi.ref('password')).required(),
 }).messages({
-  'any.only': 'Password and Confirm Password do not match!',
+  'any.only': 'Password dan Confirm Password tidak sama!',
 });
 
 module.exports = { registerValidationSchema };
