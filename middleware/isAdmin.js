@@ -4,7 +4,7 @@ const isAdmin = async (req, res, next) => {
   try {
     const refresh_token = req.cookies.refresh_token;
     if (!refresh_token) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const user = await User.findOne({
@@ -12,17 +12,17 @@ const isAdmin = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
     if (user.role !== 'admin') {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
     next();
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }

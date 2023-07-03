@@ -6,7 +6,7 @@ const verifyToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token == null) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
@@ -18,7 +18,7 @@ const verifyToken = (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }
