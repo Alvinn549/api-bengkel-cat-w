@@ -10,16 +10,6 @@ const fs = require('fs');
 async function getAllKendaraan(req, res) {
   try {
     const kendaraans = await Kendaraan.findAll({
-      attributes: [
-        'id',
-        'user_id',
-        'no_plat',
-        'merek',
-        'foto',
-        'foto_url',
-        'createdAt',
-        'updatedAt',
-      ],
       include: {
         model: User,
         as: 'pemilik',
@@ -40,18 +30,8 @@ async function getAllKendaraan(req, res) {
 // Get kendaraan by ID
 async function getKendaraanById(req, res) {
   try {
-    const kendaraanId = req.params.id;
-    const kendaraan = await Kendaraan.findByPk(kendaraanId, {
-      attributes: [
-        'id',
-        'user_id',
-        'no_plat',
-        'merek',
-        'foto',
-        'foto_url',
-        'createdAt',
-        'updatedAt',
-      ],
+    const { id } = req.params;
+    const kendaraan = await Kendaraan.findByPk(id, {
       include: {
         model: User,
         as: 'pemilik',
@@ -63,12 +43,12 @@ async function getKendaraanById(req, res) {
       return res.status(404).json({ error: 'Kendaraan tidak ditemukan!' });
     }
 
-    res.status(200).json(kendaraan);
+    return res.status(200).json(kendaraan);
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: 'Internal server error!', message: error.message });
   }
 }
 
@@ -82,6 +62,7 @@ async function storeKendaraan(req, res) {
       no_plat,
       merek,
     });
+
     if (error) {
       const errorMessage = error.details[0].message;
       return res.status(400).json({ message: errorMessage });
@@ -113,22 +94,16 @@ async function storeKendaraan(req, res) {
     const allowedTypes = ['.png', '.jpeg', '.jpg'];
 
     if (!allowedTypes.includes(ext.toLowerCase())) {
-      return res.status(422).json({ message: 'Invalid image format!' });
+      return res.status(422).json({ message: 'Format file salah!' });
     }
 
     if (fileSize > 5000000) {
       return res
         .status(422)
-        .json({ message: 'Image size must be less than 5MB!' });
+        .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
     }
 
-    await file.mv(`./public/upload/images/${fileName}`, async (err) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ error: 'Internal server error!', message: err.message });
-      }
-    });
+    await file.mv(`./public/upload/images/${fileName}`);
 
     var foto = fileName;
     var foto_url = fileUrl;
@@ -157,8 +132,8 @@ async function storeKendaraan(req, res) {
 // Update kendaraan
 async function updateKendaraan(req, res) {
   try {
-    const kendaraanId = req.params.id;
-    const kendaraan = await Kendaraan.findByPk(kendaraanId);
+    const { id } = req.params;
+    const kendaraan = await Kendaraan.findByPk(id);
 
     if (!kendaraan) {
       return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
@@ -201,35 +176,22 @@ async function updateKendaraan(req, res) {
       const allowedTypes = ['.png', '.jpeg', '.jpg'];
 
       if (!allowedTypes.includes(ext.toLowerCase())) {
-        return res.status(422).json({ message: 'Invalid image format!' });
+        return res.status(422).json({ message: 'File format salah!' });
       }
 
       if (fileSize > 5000000) {
         return res
           .status(422)
-          .json({ message: 'Image size must be less than 5MB!' });
+          .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
       }
 
-      await file.mv(`./public/upload/images/${fileName}`, async (err) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ error: 'Internal server error!', message: err.message });
-        }
-      });
+      await file.mv(`./public/upload/images/${fileName}`);
 
       if (foto !== fileName) {
         if (kendaraan.foto) {
           const filePath = `./public/upload/images/${kendaraan.foto}`;
           if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath, async (err) => {
-              if (err) {
-                return res.status(500).json({
-                  error: 'Internal server error!',
-                  message: err.message,
-                });
-              }
-            });
+            fs.unlinkSync(filePath);
           }
         }
       }
@@ -260,8 +222,8 @@ async function updateKendaraan(req, res) {
 // Delete kendaraan
 async function destroyKendaraan(req, res) {
   try {
-    const kendaraanId = req.params.id;
-    const kendaraan = await Kendaraan.findByPk(kendaraanId);
+    const { id } = req.params;
+    const kendaraan = await Kendaraan.findByPk(id);
 
     if (!kendaraan) {
       return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
@@ -270,13 +232,7 @@ async function destroyKendaraan(req, res) {
     if (kendaraan.foto) {
       const filePath = `./public/upload/images/${kendaraan.foto}`;
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath, async (err) => {
-          if (err) {
-            return res
-              .status(500)
-              .json({ error: 'Internal server error!', message: err.message });
-          }
-        });
+        fs.unlinkSync(filePath);
       }
     }
 
@@ -284,7 +240,7 @@ async function destroyKendaraan(req, res) {
 
     return res.status(200).json({
       message: 'Kendaraan berhasil dihapus!',
-      id: kendaraanId,
+      id,
     });
   } catch (error) {
     console.error(error);
