@@ -260,7 +260,32 @@ async function updateKendaraan(req, res) {
 // Delete kendaraan
 async function destroyKendaraan(req, res) {
   try {
-    return res.status(200).json({ msg: 'destroyKendaraan' });
+    const kendaraanId = req.params.id;
+    const kendaraan = await Kendaraan.findByPk(kendaraanId);
+
+    if (!kendaraan) {
+      return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
+    }
+
+    if (kendaraan.foto) {
+      const filePath = `./public/upload/images/${kendaraan.foto}`;
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath, async (err) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ error: 'Internal server error!', message: err.message });
+          }
+        });
+      }
+    }
+
+    await kendaraan.destroy();
+
+    return res.status(200).json({
+      message: 'Kendaraan berhasil dihapus!',
+      id: kendaraanId,
+    });
   } catch (error) {
     console.error(error);
     return res
