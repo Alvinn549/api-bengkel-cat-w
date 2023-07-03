@@ -9,20 +9,6 @@ const fs = require('fs');
 async function getAllUser(req, res) {
   try {
     const users = await User.findAll({
-      attributes: [
-        'id',
-        'nama',
-        'no_telp',
-        'alamat',
-        'jenis_k',
-        'foto',
-        'foto_url',
-        'email',
-        'role',
-        'device_id',
-        'createdAt',
-        'updatedAt',
-      ],
       include: {
         model: Kendaraan,
         as: 'kendaraan',
@@ -43,20 +29,8 @@ async function getAllUser(req, res) {
 // Get user by ID
 async function getUserById(req, res) {
   try {
-    const userId = req.params.id;
-    const user = await User.findByPk(userId, {
-      attributes: [
-        'id',
-        'nama',
-        'no_telp',
-        'alamat',
-        'jenis_k',
-        'foto',
-        'foto_url',
-        'email',
-        'role',
-        'device_id',
-      ],
+    const { id } = req.params;
+    const user = await User.findByPk(id, {
       include: {
         model: Kendaraan,
         as: 'kendaraan',
@@ -65,7 +39,7 @@ async function getUserById(req, res) {
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ message: 'User tidak ditemukan!' });
     }
 
     return res.status(200).json(user);
@@ -129,13 +103,7 @@ async function storeUser(req, res) {
           .json({ message: 'Image size must be less than 5MB!' });
       }
 
-      await file.mv(`./public/upload/images/${fileName}`, async (err) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ error: 'Internal server error!', message: err.message });
-        }
-      });
+      await file.mv(`./public/upload/images/${fileName}`);
 
       foto = fileName;
       foto_url = fileUrl;
@@ -172,8 +140,8 @@ async function storeUser(req, res) {
 // Update user
 async function updateUser(req, res) {
   try {
-    const userId = req.params.id;
-    const user = await User.findByPk(userId);
+    const { id } = req.params;
+    const user = await User.findByPk(id);
 
     if (!user) {
       return res.status(404).json({ message: 'User tidak ditemukan!' });
@@ -220,35 +188,22 @@ async function updateUser(req, res) {
       const allowedTypes = ['.png', '.jpeg', '.jpg'];
 
       if (!allowedTypes.includes(ext.toLowerCase())) {
-        return res.status(422).json({ message: 'Invalid image format!' });
+        return res.status(422).json({ message: 'File format salah!' });
       }
 
       if (fileSize > 5000000) {
         return res
           .status(422)
-          .json({ message: 'Image size must be less than 5MB!' });
+          .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
       }
 
-      await file.mv(`./public/upload/images/${fileName}`, async (err) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ error: 'Internal server error!', message: err.message });
-        }
-      });
+      await file.mv(`./public/upload/images/${fileName}`);
 
       if (foto !== fileName) {
         if (user.foto) {
           const filePath = `./public/upload/images/${user.foto}`;
           if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath, async (err) => {
-              if (err) {
-                return res.status(500).json({
-                  error: 'Internal server error!',
-                  message: err.message,
-                });
-              }
-            });
+            fs.unlinkSync(filePath);
           }
         }
       }
@@ -287,8 +242,8 @@ async function updateUser(req, res) {
 // Delete user
 async function destroyUser(req, res) {
   try {
-    const userId = req.params.id;
-    const user = await User.findByPk(userId);
+    const { id } = req.params;
+    const user = await User.findByPk(id);
 
     if (!user) {
       return res.status(404).json({ message: 'User tidak ditemukan!' });
@@ -297,25 +252,19 @@ async function destroyUser(req, res) {
     if (user.foto) {
       const filePath = `./public/upload/images/${user.foto}`;
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath, async (err) => {
-          if (err) {
-            return res
-              .status(500)
-              .json({ error: 'Internal server error!', message: err.message });
-          }
-        });
+        fs.unlinkSync(filePath);
       }
     }
 
     await Kendaraan.destroy({
-      where: { user_id: userId },
+      where: { user_id: id },
     });
 
     await user.destroy();
 
     return res.status(200).json({
       message: 'User berhasil dihapus!',
-      id: userId,
+      id,
     });
   } catch (error) {
     console.error(error);

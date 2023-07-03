@@ -40,7 +40,7 @@ async function getKendaraanById(req, res) {
     });
 
     if (!kendaraan) {
-      return res.status(404).json({ error: 'Kendaraan tidak ditemukan!' });
+      return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
     }
 
     return res.status(200).json(kendaraan);
