@@ -204,8 +204,8 @@ async function updateUser(req, res) {
         .json({ message: 'User dengan email ini sudah terdaftar!' });
     }
 
-    let foto = user.foto;
-    let foto_url = user.foto_url;
+    var foto = user.foto;
+    var foto_url = user.foto_url;
 
     if (req.files && req.files.foto) {
       const file = req.files.foto;
@@ -241,14 +241,12 @@ async function updateUser(req, res) {
         if (user.foto) {
           const filePath = `./public/upload/images/${user.foto}`;
           if (fs.existsSync(filePath)) {
-            await fs.unlinkSync(filePath, async (err) => {
+            fs.unlinkSync(filePath, async (err) => {
               if (err) {
-                return res
-                  .status(500)
-                  .json({
-                    error: 'Internal server error!',
-                    message: err.message,
-                  });
+                return res.status(500).json({
+                  error: 'Internal server error!',
+                  message: err.message,
+                });
               }
             });
           }
@@ -299,7 +297,7 @@ async function destroyUser(req, res) {
     if (user.foto) {
       const filePath = `./public/upload/images/${user.foto}`;
       if (fs.existsSync(filePath)) {
-        await fs.unlinkSync(filePath, async (err) => {
+        fs.unlinkSync(filePath, async (err) => {
           if (err) {
             return res
               .status(500)
