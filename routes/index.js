@@ -6,6 +6,7 @@ const { verifyToken } = require('../middleware/verifyToken');
 const { isAdmin } = require('../middleware/isAdmin');
 const userRoutes = require('./userRoutes');
 const kendaraanRoutes = require('./kendaraanRoutes');
+const perbaikanRoutes = require('./perbaikanRoutes');
 
 const router = express.Router();
 
@@ -35,5 +36,8 @@ router.use('/api/users', verifyToken, isAdmin, userRoutes);
 
 // ? /api/kendaraans
 router.use('/api/kendaraans', verifyToken, isAdmin, kendaraanRoutes);
+
+// ? /api/perbaikans
+router.use('/api/perbaikans', verifyToken, isAdmin, perbaikanRoutes);
 
 module.exports = router;

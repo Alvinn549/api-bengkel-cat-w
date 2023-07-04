@@ -9,11 +9,11 @@ const {
 
 const router = express.Router();
 
-router.get('/', getAllKendaraan); //        ? Get all users  -> "GET"    -> /api/users
-router.post('/', storeKendaraan); //        ? Create user    -> "POST"   -> /api/users
+router.get('/', getAllKendaraan); //        ? Get all kendaraan   -> "GET"    -> /api/kendaraans
+router.post('/', storeKendaraan); //        ? Create kendaraan    -> "POST"   -> /api/kendaraans
 
-router.get('/:id', getKendaraanById); //    ? Get user by Id -> "GET"    -> /api/users/:id
-router.put('/:id', updateKendaraan); //     ? Update user    -> "PUT"    -> /api/users/:id
-router.delete('/:id', destroyKendaraan); // ? Delete user    -> "DELETE" -> /api/users/:id
+router.get('/:id', getKendaraanById); //    ? Get kendaraan by Id -> "GET"    -> /api/kendaraans/:id
+router.put('/:id', updateKendaraan); //     ? Update kendaraan    -> "PUT"    -> /api/kendaraans/:id
+router.delete('/:id', destroyKendaraan); // ? Delete kendaraan    -> "DELETE" -> /api/kendaraans/:id
 
 module.exports = router;
