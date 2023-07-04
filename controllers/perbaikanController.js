@@ -1,7 +1,7 @@
 const { Perbaikan, Kendaraan } = require('../db/models');
 const {
-  kendaraanValidationSchema,
-} = require('../validator/kendaraanValidator');
+  perbaikanValidationSchema,
+} = require('../validator/perbaikanValidator');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
@@ -107,7 +107,73 @@ async function getPerbaikanKendaraanId(req, res) {
 
 // Create new perbaikan
 async function storePerbaikan(req, res) {
-  return res.status(200).json({ messaage: 'storePerbaikan' });
+  try {
+    const { kendaraan_id, keterangan, estimasi_biaya } = req.body;
+
+    const { error } = perbaikanValidationSchema.validate({
+      kendaraan_id,
+      keterangan,
+      estimasi_biaya,
+    });
+
+    if (error) {
+      const errorMessage = error.details[0].message;
+      return res.status(400).json({ message: errorMessage });
+    }
+
+    if (!req.files || !req.files.foto) {
+      return res
+        .status(400)
+        .json({ message: 'Foto perbaikan tidak boleh kosong!' });
+    }
+
+    const file = req.files.foto;
+    const fileSize = file.data.length;
+    const ext = path.extname(file.name);
+    const timestamp = Date.now();
+    const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
+    const fileUrl = `${req.protocol}://${req.get(
+      'host'
+    )}/upload/images/${fileName}`;
+
+    const allowedTypes = ['.png', '.jpeg', '.jpg'];
+
+    if (!allowedTypes.includes(ext.toLowerCase())) {
+      return res.status(422).json({ message: 'Format file salah!' });
+    }
+
+    if (fileSize > 5000000) {
+      return res
+        .status(422)
+        .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
+    }
+
+    await file.mv(`./public/upload/images/${fileName}`);
+
+    var foto = fileName;
+    var foto_url = fileUrl;
+
+    const newPerbaikan = await Perbaikan.create({
+      id: uuidv4(),
+      kendaraan_id,
+      keterangan,
+      tanggal_masuk: new Date(),
+      foto,
+      foto_url,
+      estimasi_biaya,
+      status: 'Baru Masuk',
+    });
+
+    return res.status(201).json({
+      message: 'Perbaikan berhasil disimpan!',
+      id: newPerbaikan.id,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Internal server error!', message: error.message });
+  }
 }
 
 // Update perbaikan
