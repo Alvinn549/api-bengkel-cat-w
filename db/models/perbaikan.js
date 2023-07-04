@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // Belongs to
       Perbaikan.belongsTo(models.Kendaraan, {
         foreignKey: {
-          name: 'perbaikan_id',
+          name: 'kendaraan_id',
           allowNull: false,
         },
         as: 'kendaraan',
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Perbaikan.init(
     {
-      perbaikan_id: DataTypes.UUID,
+      kendaraan_id: DataTypes.UUID,
       keterangan: DataTypes.TEXT,
       tanggal_masuk: DataTypes.DATE,
       tanggal_keluar: DataTypes.DATE,

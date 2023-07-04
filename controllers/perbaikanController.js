@@ -8,7 +8,23 @@ const fs = require('fs');
 
 // Get all perbaikan
 async function getAllPerbaikan(req, res) {
-  return res.status(200).json({ messaage: 'getAllPerbaikan' });
+  try {
+    const perbaikans = await Perbaikan.findAll({
+      include: {
+        model: Kendaraan,
+        as: 'kendaraan',
+        attributes: ['id', 'no_plat', 'merek'],
+      },
+      order: [['createdAt', 'DESC']],
+    });
+
+    return res.status(200).json(perbaikans);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
+  }
 }
 
 // Get perbaikan by ID
