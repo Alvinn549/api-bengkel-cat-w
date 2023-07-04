@@ -3,7 +3,6 @@
 const { faker } = require('@faker-js/faker/locale/id_ID');
 const { Kendaraan } = require('../models');
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     const kendaraans = await Kendaraan.findAll({ attributes: ['id'] });
