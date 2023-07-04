@@ -5,11 +5,15 @@ const { User } = require('../models');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const users = await User.findAll({ where: { role: 'pelanggan' } });
+    const users = await User.findAll({
+      where: { role: 'pelanggan' },
+      attributes: ['id'],
+    });
+    const userIds = users.map((user) => user.id);
 
-    const fakeKendaraan = Array.from({ length: 50 }).map(() => ({
+    const fakeKendaraan = Array.from({ length: 200 }).map(() => ({
       id: faker.string.uuid(),
-      user_id: faker.helpers.arrayElement(users).id,
+      user_id: faker.helpers.arrayElement(userIds),
       no_plat: faker.vehicle.vrm(),
       merek: faker.vehicle.vehicle(),
       foto: faker.vehicle.vehicle().replace(/\s/g, '') + '.jpg',

@@ -9,7 +9,7 @@ module.exports = {
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash('123456789', salt);
 
-    const fakeUser = Array.from({ length: 20 }).map(() => ({
+    const fakeUser = Array.from({ length: 100 }).map(() => ({
       id: faker.string.uuid(),
       nama: faker.person.fullName(),
       no_telp: faker.phone.number(),
