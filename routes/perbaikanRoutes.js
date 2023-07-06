@@ -5,7 +5,7 @@ const {
   storePerbaikan,
   updatePerbaikan,
   destroyPerbaikan,
-  getPerbaikanKendaraanId,
+  getPerbaikanByKendaraanId,
 } = require('../controllers/perbaikanController');
 
 const router = express.Router();
@@ -17,6 +17,6 @@ router.get('/:id', getPerbaikanById); //    ? Get perbaikan by Id -> "GET"    ->
 router.put('/:id', updatePerbaikan); //     ? Update perbaikan    -> "PUT"    -> /api/perbaikans/:id
 router.delete('/:id', destroyPerbaikan); // ? Delete perbaikan    -> "DELETE" -> /api/perbaikans/:id
 
-router.get('/get-by-kendaraan-id/:id', getPerbaikanKendaraanId); // ? Delete perbaikan    -> "DELETE" -> /api/perbaikans/:id
+router.get('/get-by-kendaraan-id/:id', getPerbaikanByKendaraanId); // ? Delete perbaikan    -> "DELETE" -> /api/perbaikans/:id
 
 module.exports = router;

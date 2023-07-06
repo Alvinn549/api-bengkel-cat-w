@@ -84,7 +84,7 @@ async function getPerbaikanById(req, res) {
   }
 }
 // Get perbaikan by ID Kendaraan
-async function getPerbaikanKendaraanId(req, res) {
+async function getPerbaikanByKendaraanId(req, res) {
   try {
     const { id: kendaraan_id } = req.params;
     const perbaikans = await Perbaikan.findAll({
@@ -192,5 +192,5 @@ module.exports = {
   storePerbaikan,
   updatePerbaikan,
   destroyPerbaikan,
-  getPerbaikanKendaraanId,
+  getPerbaikanByKendaraanId,
 };
