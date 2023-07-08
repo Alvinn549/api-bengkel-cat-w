@@ -1,4 +1,4 @@
-const { User, Kendaraan, UserActivation } = require('../db/models');
+const { User, Kendaraan } = require('../db/models');
 const bcrypt = require('bcrypt');
 const { userValidationSchema } = require('../validator/userValidator');
 const { v4: uuidv4 } = require('uuid');
@@ -31,17 +31,11 @@ async function getUserById(req, res) {
   try {
     const { id } = req.params;
     const user = await User.findByPk(id, {
-      include: [
-        {
-          model: UserActivation,
-          as: 'activation',
-        },
-        {
-          model: Kendaraan,
-          as: 'kendaraan',
-          attributes: ['id', 'no_plat', 'merek'],
-        },
-      ],
+      include: {
+        model: Kendaraan,
+        as: 'kendaraan',
+        attributes: ['id', 'no_plat', 'merek'],
+      },
     });
 
     if (!user) {

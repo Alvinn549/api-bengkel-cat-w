@@ -4,10 +4,6 @@ const { login, logout } = require('../controllers/authentication');
 const { refreshToken } = require('../controllers/refreshTokenController');
 const { verifyToken } = require('../middleware/verifyToken');
 const { isAdmin } = require('../middleware/isAdmin');
-const {
-  verifyEmail,
-  resendVerificationEmail,
-} = require('../controllers/emailVerificationController');
 const userRoutes = require('./userRoutes');
 const kendaraanRoutes = require('./kendaraanRoutes');
 const perbaikanRoutes = require('./perbaikanRoutes');
@@ -34,8 +30,6 @@ router.post('/api/register', registerUser);
 router.post('/api/login', login);
 router.delete('/api/logout', logout);
 router.get('/api/refresh-token', refreshToken);
-router.post('/api/verify-email', verifyEmail);
-router.post('/api/resend-verification-email', resendVerificationEmail);
 
 // ? /api/users
 router.use('/api/users', verifyToken, isAdmin, userRoutes);
