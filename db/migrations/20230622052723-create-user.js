@@ -38,6 +38,9 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
+      isActive: {
+        type: Sequelize.BOOLEAN,
+      },
       refresh_token: {
         allowNull: true,
         type: Sequelize.TEXT,

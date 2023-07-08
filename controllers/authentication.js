@@ -21,6 +21,10 @@ async function login(req, res) {
         .json({ error: 'Password yang anda masukkan salah!' });
     }
 
+    if (user.isActive === false) {
+      return res.status(400).json({ error: 'Email anda belum terkonfirmasi!' });
+    }
+
     const { id: userId, nama, email: userEmail } = user;
 
     const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
