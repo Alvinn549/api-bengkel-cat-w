@@ -9,6 +9,7 @@ const fs = require('fs');
 // Get all kendaraans
 async function getAllKendaraan(req, res) {
   try {
+    // Fetch all kendaraans, including their associated pemilik (User) records
     const kendaraans = await Kendaraan.findAll({
       include: {
         model: User,
@@ -31,6 +32,7 @@ async function getAllKendaraan(req, res) {
 async function getKendaraanById(req, res) {
   try {
     const { id } = req.params;
+    // Find a kendaraan by ID, including related pemilik (User) and perbaikan (Perbaikan) records
     const kendaraan = await Kendaraan.findByPk(id, {
       include: [
         {
@@ -64,6 +66,7 @@ async function storeKendaraan(req, res) {
   try {
     const { user_id, no_plat, merek } = req.body;
 
+    // Validate user input
     const { error } = kendaraanValidationSchema.validate({
       user_id,
       no_plat,
@@ -75,20 +78,23 @@ async function storeKendaraan(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
+    // Check if the kendaraan with the same no_plat already exists
     const existingKendaraan = await Kendaraan.findOne({ where: { no_plat } });
 
     if (existingKendaraan) {
       return res
         .status(409)
-        .json({ message: 'Kedaraan dengan No Plat ini sudah terdaftar!' });
+        .json({ message: 'Kendaraan dengan No Plat ini sudah terdaftar!' });
     }
 
+    // Check if the 'foto' field exists in the request files
     if (!req.files || !req.files.foto) {
       return res
         .status(400)
         .json({ message: 'Foto kendaraan tidak boleh kosong!' });
     }
 
+    // Handle file upload if 'foto' is provided
     const file = req.files.foto;
     const fileSize = file.data.length;
     const ext = path.extname(file.name);
@@ -115,6 +121,7 @@ async function storeKendaraan(req, res) {
     var foto = fileName;
     var foto_url = fileUrl;
 
+    // Create a new kendaraan record
     const newKendaraaan = await Kendaraan.create({
       id: uuidv4(),
       user_id,
@@ -148,6 +155,7 @@ async function updateKendaraan(req, res) {
 
     const { user_id, no_plat, merek } = req.body;
 
+    // Validate user input
     const { error } = kendaraanValidationSchema.validate({
       user_id,
       no_plat,
@@ -159,17 +167,19 @@ async function updateKendaraan(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
+    // Check if a kendaraan with the same no_plat already exists (excluding the current kendaraan)
     const existingKendaraan = await Kendaraan.findOne({ where: { no_plat } });
 
     if (existingKendaraan && existingKendaraan.id !== kendaraan.id) {
       return res
         .status(409)
-        .json({ message: 'Kedaraan dengan No Plat ini sudah terdaftar!' });
+        .json({ message: 'Kendaraan dengan No Plat ini sudah terdaftar!' });
     }
 
     var foto = kendaraan.foto;
     var foto_url = kendaraan.foto_url;
 
+    // Handle file upload if 'foto' is provided (similar to storeKendaraan)
     if (req.files && req.files.foto) {
       const file = req.files.foto;
       const fileSize = file.data.length;
@@ -207,6 +217,7 @@ async function updateKendaraan(req, res) {
       foto_url = fileUrl;
     }
 
+    // Update the kendaraan record
     await kendaraan.update({
       user_id,
       no_plat,
@@ -243,11 +254,12 @@ async function destroyKendaraan(req, res) {
       }
     }
 
-    // Delete related Perbaikan
+    // Delete related Perbaikan records
     await Perbaikan.destroy({
       where: { kendaraan_id: id },
     });
 
+    // Delete the kendaraan record
     await kendaraan.destroy();
 
     return res.status(200).json({
