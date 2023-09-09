@@ -7,8 +7,6 @@ const {
   imageFileUpload,
   deleteFile,
 } = require('../controllers/fileUploadController');
-const path = require('path');
-const fs = require('fs');
 
 // Get all kendaraans
 async function getAllKendaraan(req, res) {
