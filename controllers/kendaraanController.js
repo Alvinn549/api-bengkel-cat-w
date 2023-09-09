@@ -3,6 +3,10 @@ const {
   kendaraanValidationSchema,
 } = require('../validator/kendaraanValidator');
 const { v4: uuidv4 } = require('uuid');
+const {
+  imageFileUpload,
+  deleteFile,
+} = require('../controllers/fileUploadController');
 const path = require('path');
 const fs = require('fs');
 
@@ -95,31 +99,24 @@ async function storeKendaraan(req, res) {
     }
 
     // Handle file upload if 'foto' is provided
-    const file = req.files.foto;
-    const fileSize = file.data.length;
-    const ext = path.extname(file.name);
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
-    const fileUrl = `${req.protocol}://${req.get(
-      'host'
-    )}/upload/images/${fileName}`;
+    try {
+      const image = req.files.foto;
+      const destination = '/upload/images/kendaraan/';
 
-    const allowedTypes = ['.png', '.jpeg', '.jpg'];
+      const { fileName, fileUrl } = await imageFileUpload(
+        req,
+        image,
+        destination
+      );
 
-    if (!allowedTypes.includes(ext.toLowerCase())) {
-      return res.status(422).json({ message: 'Format file salah!' });
+      foto = fileName;
+      foto_url = fileUrl;
+    } catch (uploadError) {
+      return res.status(400).json({
+        message: 'Error uploading the image!',
+        error: uploadError.message,
+      });
     }
-
-    if (fileSize > 5000000) {
-      return res
-        .status(422)
-        .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
-    }
-
-    await file.mv(`./public/upload/images/${fileName}`);
-
-    var foto = fileName;
-    var foto_url = fileUrl;
 
     // Create a new kendaraan record
     const newKendaraaan = await Kendaraan.create({
@@ -179,42 +176,36 @@ async function updateKendaraan(req, res) {
     var foto = kendaraan.foto;
     var foto_url = kendaraan.foto_url;
 
-    // Handle file upload if 'foto' is provided (similar to storeKendaraan)
+    // Handle file upload if a photo is provided (similar to storeUser)
     if (req.files && req.files.foto) {
-      const file = req.files.foto;
-      const fileSize = file.data.length;
-      const ext = path.extname(file.name);
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
-      const fileUrl = `${req.protocol}://${req.get(
-        'host'
-      )}/upload/images/${fileName}`;
+      try {
+        const image = req.files.foto;
+        const destination = '/upload/images/kendaraan/';
 
-      const allowedTypes = ['.png', '.jpeg', '.jpg'];
+        const { fileName, fileUrl } = await imageFileUpload(
+          req,
+          image,
+          destination
+        );
 
-      if (!allowedTypes.includes(ext.toLowerCase())) {
-        return res.status(422).json({ message: 'File format salah!' });
-      }
+        // If the new photo name is different, delete the old photo file
+        if (foto !== fileName) {
+          if (kendaraan.foto) {
+            const destination = '/upload/images/kendaraan/';
+            const fileName = kendaraan.foto;
 
-      if (fileSize > 5000000) {
-        return res
-          .status(422)
-          .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
-      }
-
-      await file.mv(`./public/upload/images/${fileName}`);
-
-      if (foto !== fileName) {
-        if (kendaraan.foto) {
-          const filePath = `./public/upload/images/${kendaraan.foto}`;
-          if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+            await deleteFile(destination, fileName);
           }
         }
-      }
 
-      foto = fileName;
-      foto_url = fileUrl;
+        foto = fileName;
+        foto_url = fileUrl;
+      } catch (uploadError) {
+        return res.status(400).json({
+          message: 'Error uploading the image!',
+          error: uploadError.message,
+        });
+      }
     }
 
     // Update the kendaraan record
@@ -248,10 +239,10 @@ async function destroyKendaraan(req, res) {
     }
 
     if (kendaraan.foto) {
-      const filePath = `./public/upload/images/${kendaraan.foto}`;
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      const destination = '/upload/images/kendaraan/';
+      const fileName = kendaraan.foto;
+
+      await deleteFile(destination, fileName);
     }
 
     // Delete related Perbaikan records
