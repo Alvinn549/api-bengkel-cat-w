@@ -1,10 +1,10 @@
 const path = require('path');
 const fs = require('fs');
 
-async function imageFileUpload(req, image) {
-  try {
-    const uploadPath = './public/upload/images';
+const rootPath = './public';
 
+async function imageFileUpload(req, image, destination) {
+  try {
     const ext = path.extname(image.name);
     const fileSize = image.data.length;
 
@@ -14,7 +14,7 @@ async function imageFileUpload(req, image) {
     // Generate the full file URL using the request's protocol and host
     const fileUrl = `${req.protocol}://${req.get(
       'host'
-    )}/upload/images/${fileName}`;
+    )}${destination}${fileName}`;
 
     const allowedTypes = ['.png', '.jpeg', '.jpg'];
 
@@ -29,7 +29,7 @@ async function imageFileUpload(req, image) {
     }
 
     // Move the uploaded file to the specified upload path
-    await image.mv(`${uploadPath}/${fileName}`);
+    await image.mv(`${rootPath}${destination}${fileName}`);
 
     return { fileName, fileUrl };
   } catch (error) {
@@ -37,9 +37,9 @@ async function imageFileUpload(req, image) {
   }
 }
 
-async function deleteFile(filePath, fileName) {
+async function deleteFile(destination, fileName) {
   try {
-    const file = `${filePath}${fileName}`;
+    const file = `${rootPath}${destination}${fileName}`;
 
     if (fs.existsSync(file)) {
       fs.unlinkSync(file);
