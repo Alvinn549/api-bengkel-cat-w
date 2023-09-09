@@ -2,7 +2,6 @@ node_modules
 **/*.jpg
 **/*.jpeg
 **/*.png
-!/public/resources/
-!/public/upload/images/
-!/public/upload/file/
+public/upload/images/*
+!/public/upload/images/.gitkeep
 .env
