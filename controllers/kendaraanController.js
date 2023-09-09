@@ -34,6 +34,7 @@ async function getAllKendaraan(req, res) {
 async function getKendaraanById(req, res) {
   try {
     const { id } = req.params;
+
     // Find a kendaraan by ID, including related pemilik (User) and perbaikan (Perbaikan) records
     const kendaraan = await Kendaraan.findByPk(id, {
       include: [
