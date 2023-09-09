@@ -1,9 +1,11 @@
 const { User, Kendaraan, Perbaikan, UserActivation } = require('../db/models');
-const bcrypt = require('bcrypt');
 const { userValidationSchema } = require('../validator/userValidator');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const fs = require('fs');
+const {
+  imageFileUpload,
+  deleteFile,
+} = require('../controllers/fileUploadController');
+const bcrypt = require('bcrypt');
 
 // Get all users
 async function getAllUser(req, res) {
@@ -93,34 +95,22 @@ async function storeUser(req, res) {
 
     // Handle file upload if a photo is provided
     if (req.files && req.files.foto) {
-      const file = req.files.foto;
-      const fileSize = file.data.length;
-      const ext = path.extname(file.name);
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
-      const fileUrl = `${req.protocol}://${req.get(
-        'host'
-      )}/upload/images/${fileName}`;
+      try {
+        const image = req.files.foto;
 
-      const allowedTypes = ['.png', '.jpeg', '.jpg'];
+        const { fileName, fileUrl } = await imageFileUpload(req, image);
 
-      if (!allowedTypes.includes(ext.toLowerCase())) {
-        return res.status(422).json({ message: 'Invalid image format!' });
+        foto = fileName;
+        foto_url = fileUrl;
+      } catch (uploadError) {
+        return res.status(400).json({
+          message: 'Error uploading the image!',
+          error: uploadError.message,
+        });
       }
-
-      if (fileSize > 5000000) {
-        return res
-          .status(422)
-          .json({ message: 'Image size must be less than 5MB!' });
-      }
-
-      await file.mv(`./public/upload/images/${fileName}`);
-
-      foto = fileName;
-      foto_url = fileUrl;
     }
 
-    // Hash the user's password
+    // Hash the user password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -161,6 +151,8 @@ async function updateUser(req, res) {
     }
 
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
+    var foto = user.foto;
+    var foto_url = user.foto_url;
 
     // Validate user input
     const { error } = userValidationSchema.validate({
@@ -180,52 +172,37 @@ async function updateUser(req, res) {
 
     // Check if the email is already registered (excluding the current user)
     const existingUser = await User.findOne({ where: { email } });
-
     if (existingUser && existingUser.id !== user.id) {
       return res
         .status(409)
         .json({ message: 'User dengan email ini sudah terdaftar!' });
     }
 
-    var foto = user.foto;
-    var foto_url = user.foto_url;
-
     // Handle file upload if a photo is provided (similar to storeUser)
     if (req.files && req.files.foto) {
-      const file = req.files.foto;
-      const fileSize = file.data.length;
-      const ext = path.extname(file.name);
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
-      const fileUrl = `${req.protocol}://${req.get(
-        'host'
-      )}/upload/images/${fileName}`;
+      try {
+        const image = req.files.foto;
 
-      const allowedTypes = ['.png', '.jpeg', '.jpg'];
+        const { fileName, fileUrl } = await imageFileUpload(req, image);
 
-      if (!allowedTypes.includes(ext.toLowerCase())) {
-        return res.status(422).json({ message: 'File format salah!' });
-      }
+        // If the new photo name is different, delete the old photo file
+        if (foto !== fileName) {
+          if (user.foto) {
+            const filePath = './public/upload/images/';
+            const fileName = user.foto;
 
-      if (fileSize > 5000000) {
-        return res
-          .status(422)
-          .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
-      }
-
-      await file.mv(`./public/upload/images/${fileName}`);
-
-      if (foto !== fileName) {
-        if (user.foto) {
-          const filePath = `./public/upload/images/${user.foto}`;
-          if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+            await deleteFile(filePath, fileName);
           }
         }
-      }
 
-      foto = fileName;
-      foto_url = fileUrl;
+        foto = fileName;
+        foto_url = fileUrl;
+      } catch (uploadError) {
+        return res.status(400).json({
+          message: 'Error uploading the image!',
+          error: uploadError.message,
+        });
+      }
     }
 
     // Hash the user's password
@@ -267,12 +244,12 @@ async function destroyUser(req, res) {
       return res.status(404).json({ message: 'User tidak ditemukan!' });
     }
 
-    // Check if the user has associated Kendaraan records
+    // Check if the user has foto records, then delete it
     if (user.foto) {
-      const filePath = `./public/upload/images/${user.foto}`;
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      const filePath = './public/upload/images/';
+      const fileName = user.foto;
+
+      await deleteFile(filePath, fileName);
     }
 
     // First, find and delete related records in the "Perbaikans" table
