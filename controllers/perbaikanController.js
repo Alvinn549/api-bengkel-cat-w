@@ -178,12 +178,123 @@ async function storePerbaikan(req, res) {
 
 // Update perbaikan
 async function updatePerbaikan(req, res) {
-  return res.status(200).json({ messaage: 'updatePerbaikan' });
+  try {
+    const { id } = req.params;
+    const perbaikan = await Perbaikan.findByPk(id);
+
+    if (!perbaikan) {
+      return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
+    }
+
+    const { kendaraan_id, keterangan, estimasi_biaya, tanggal_keluar, status } =
+      req.body;
+
+    const tanggalKeluar = tanggal_keluar || null;
+    const statusValue = status || null;
+
+    const { error } = perbaikanValidationSchema.validate({
+      kendaraan_id,
+      keterangan,
+      estimasi_biaya,
+      tanggal_keluar: tanggalKeluar,
+      status: statusValue,
+    });
+
+    if (error) {
+      const errorMessage = error.details[0].message;
+      return res.status(400).json({ message: errorMessage });
+    }
+
+    var foto = perbaikan.foto;
+    var foto_url = perbaikan.foto_url;
+
+    // Handle file upload if 'foto' is provided (similar to storeKendaraan)
+    if (req.files && req.files.foto) {
+      const file = req.files.foto;
+      const fileSize = file.data.length;
+      const ext = path.extname(file.name);
+      const timestamp = Date.now();
+      const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
+      const fileUrl = `${req.protocol}://${req.get(
+        'host'
+      )}/upload/images/${fileName}`;
+
+      const allowedTypes = ['.png', '.jpeg', '.jpg'];
+
+      if (!allowedTypes.includes(ext.toLowerCase())) {
+        return res.status(422).json({ message: 'File format salah!' });
+      }
+
+      if (fileSize > 5000000) {
+        return res
+          .status(422)
+          .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
+      }
+
+      await file.mv(`./public/upload/images/${fileName}`);
+
+      if (foto !== fileName) {
+        if (perbaikan.foto) {
+          const filePath = `./public/upload/images/${perbaikan.foto}`;
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        }
+      }
+
+      foto = fileName;
+      foto_url = fileUrl;
+    }
+
+    await perbaikan.update({
+      kendaraan_id,
+      keterangan,
+      estimasi_biaya,
+      foto,
+      foto_url,
+      tanggal_keluar: tanggalKeluar,
+      status: statusValue,
+    });
+
+    return res
+      .status(200)
+      .json({ message: 'Perbaikan berhasil diperbarui!', id: perbaikan.id });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Internal server error!', message: error.message });
+  }
 }
 
 // Delete perbaikan
 async function destroyPerbaikan(req, res) {
-  return res.status(200).json({ messaage: 'destroyPerbaikan' });
+  try {
+    const { id } = req.params;
+    const perbaikan = await Perbaikan.findByPk(id);
+
+    if (!perbaikan) {
+      return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
+    }
+
+    if (perbaikan.foto) {
+      const filePath = `./public/upload/images/${perbaikan.foto}`;
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+    await perbaikan.destroy();
+
+    return res.status(200).json({
+      message: 'Perbaikan berhasil dihapus!',
+      id,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Internal server error!', message: error.message });
+  }
 }
 
 module.exports = {
