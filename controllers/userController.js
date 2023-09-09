@@ -97,8 +97,13 @@ async function storeUser(req, res) {
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
+        const destination = '/upload/images/user/';
 
-        const { fileName, fileUrl } = await imageFileUpload(req, image);
+        const { fileName, fileUrl } = await imageFileUpload(
+          req,
+          image,
+          destination
+        );
 
         foto = fileName;
         foto_url = fileUrl;
@@ -182,16 +187,21 @@ async function updateUser(req, res) {
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
+        const destination = '/upload/images/user/';
 
-        const { fileName, fileUrl } = await imageFileUpload(req, image);
+        const { fileName, fileUrl } = await imageFileUpload(
+          req,
+          image,
+          destination
+        );
 
         // If the new photo name is different, delete the old photo file
         if (foto !== fileName) {
           if (user.foto) {
-            const filePath = './public/upload/images/';
+            const destination = '/upload/images/user/';
             const fileName = user.foto;
 
-            await deleteFile(filePath, fileName);
+            await deleteFile(destination, fileName);
           }
         }
 
@@ -246,10 +256,10 @@ async function destroyUser(req, res) {
 
     // Check if the user has foto records, then delete it
     if (user.foto) {
-      const filePath = './public/upload/images/';
+      const destination = '/upload/images/user/';
       const fileName = user.foto;
 
-      await deleteFile(filePath, fileName);
+      await deleteFile(destination, fileName);
     }
 
     // First, find and delete related records in the "Perbaikans" table
