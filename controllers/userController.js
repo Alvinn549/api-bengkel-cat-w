@@ -1,4 +1,4 @@
-const { User, Kendaraan, UserActivation } = require('../db/models');
+const { User, Kendaraan, Perbaikan, UserActivation } = require('../db/models');
 const bcrypt = require('bcrypt');
 const { userValidationSchema } = require('../validator/userValidator');
 const { v4: uuidv4 } = require('uuid');
@@ -262,10 +262,28 @@ async function destroyUser(req, res) {
       }
     }
 
+    // First, find and delete related records in the "Perbaikans" table
+    const kendaraanIdsToDelete = await Kendaraan.findAll({
+      attributes: ['id'],
+      where: { user_id: id },
+    });
+
+    // Delete related Perbaikan records based on Kendaraan IDs
+    await Perbaikan.destroy({
+      where: { kendaraan_id: kendaraanIdsToDelete.map((k) => k.id) },
+    });
+
+    // Then, delete related records in the "Kendaraans" table
     await Kendaraan.destroy({
       where: { user_id: id },
     });
 
+    // Delete related UserActivation record
+    await UserActivation.destroy({
+      where: { user_id: id },
+    });
+
+    // Finally, delete the user from the "Users" table
     await user.destroy();
 
     return res.status(200).json({

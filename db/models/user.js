@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
         as: 'kendaraan',
+        onDelete: 'CASCADE',
       });
 
       // Has One
@@ -20,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
         as: 'activation',
+        onDelete: 'CASCADE',
       });
     }
   }

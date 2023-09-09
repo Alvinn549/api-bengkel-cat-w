@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
         as: 'kendaraan',
+        onDelete: 'CASCADE',
       });
 
       // Has Many

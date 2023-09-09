@@ -8,11 +8,11 @@ function sendVerificationEmail(email, code) {
   const expireTimeString = expireTime.toLocaleString(); // Convert expiration time to a readable format
 
   const transporter = nodemailer.createTransport({
-    host: 'mail.smtp2go.com',
-    port: 2525,
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
     auth: {
-      user: process.env.SMTP2GO_USERNAME,
-      pass: process.env.SMTP2GO_PASSWORD,
+      user: process.env.SMTP_USERNAME,
+      pass: process.env.SMTP_PASSWORD,
     },
   });
 

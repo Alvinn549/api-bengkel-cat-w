@@ -1,4 +1,4 @@
-const { User, Kendaraan } = require('../db/models');
+const { User, Kendaraan, Perbaikan } = require('../db/models');
 const {
   kendaraanValidationSchema,
 } = require('../validator/kendaraanValidator');
@@ -32,11 +32,18 @@ async function getKendaraanById(req, res) {
   try {
     const { id } = req.params;
     const kendaraan = await Kendaraan.findByPk(id, {
-      include: {
-        model: User,
-        as: 'pemilik',
-        attributes: ['id', 'nama', 'no_telp', 'alamat', 'role'],
-      },
+      include: [
+        {
+          model: User,
+          as: 'pemilik',
+          attributes: ['id', 'nama', 'no_telp', 'alamat', 'role'],
+        },
+        {
+          model: Perbaikan,
+          as: 'perbaikan',
+          attributes: ['id'],
+        },
+      ],
     });
 
     if (!kendaraan) {
@@ -235,6 +242,11 @@ async function destroyKendaraan(req, res) {
         fs.unlinkSync(filePath);
       }
     }
+
+    // Delete related Perbaikan
+    await Perbaikan.destroy({
+      where: { kendaraan_id: id },
+    });
 
     await kendaraan.destroy();
 

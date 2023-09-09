@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
         as: 'pemilik',
+        onDelete: 'CASCADE',
       });
 
       // Has Many
@@ -20,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
         as: 'perbaikan',
+        onDelete: 'CASCADE',
       });
     }
   }

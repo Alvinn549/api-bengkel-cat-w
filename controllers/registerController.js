@@ -53,11 +53,14 @@ async function registerUser(req, res) {
 
     try {
       sendVerificationEmail(newUser.email, verificationCode);
-      if (sendVerificationEmail) {
-        console.log('code terkirim');
-      }
+      // if (sendVerificationEmail) {
+      //   console.log('code terkirim');
+      // }
     } catch (error) {
       console.error(error);
+      return res
+        .status(500)
+        .json({ error: 'Internal server error', message: error.message });
     }
 
     return res.status(201).json({
