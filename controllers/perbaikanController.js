@@ -3,8 +3,10 @@ const {
   perbaikanValidationSchema,
 } = require('../validator/perbaikanValidator');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const fs = require('fs');
+const {
+  imageFileUpload,
+  deleteFile,
+} = require('../controllers/fileUploadController');
 
 // Get all perbaikan
 async function getAllPerbaikan(req, res) {
@@ -25,38 +27,6 @@ async function getAllPerbaikan(req, res) {
       .status(500)
       .json({ error: 'Internal server error', message: error.message });
   }
-  /*
-    try {
-      const page = parseInt(req.query.page) || 1; // Current page number
-      const pageSize = parseInt(req.query.pageSize) || 10; // Number of items per page
-
-      const perbaikans = await Perbaikan.findAndCountAll({
-        include: {
-          model: Kendaraan,
-          as: 'kendaraan',
-          attributes: ['id', 'no_plat', 'merek'],
-        },
-        order: [['createdAt', 'DESC']],
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
-      });
-
-      const totalPages = Math.ceil(perbaikans.count / pageSize);
-
-      return res.status(200).json({
-        page,
-        pageSize,
-        totalItems: perbaikans.count,
-        totalPages,
-        perbaikans: perbaikans.rows,
-      });
-    } catch (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .json({ error: 'Internal server error', message: error.message });
-    }
-  */
 }
 
 // Get perbaikan by ID
@@ -127,31 +97,24 @@ async function storePerbaikan(req, res) {
         .json({ message: 'Foto perbaikan tidak boleh kosong!' });
     }
 
-    const file = req.files.foto;
-    const fileSize = file.data.length;
-    const ext = path.extname(file.name);
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
-    const fileUrl = `${req.protocol}://${req.get(
-      'host'
-    )}/upload/images/${fileName}`;
+    try {
+      const image = req.files.foto;
+      const destination = '/upload/images/perbaikan/';
 
-    const allowedTypes = ['.png', '.jpeg', '.jpg'];
+      const { fileName, fileUrl } = await imageFileUpload(
+        req,
+        image,
+        destination
+      );
 
-    if (!allowedTypes.includes(ext.toLowerCase())) {
-      return res.status(422).json({ message: 'Format file salah!' });
+      foto = fileName;
+      foto_url = fileUrl;
+    } catch (uploadError) {
+      return res.status(400).json({
+        message: 'Error uploading the image!',
+        error: uploadError.message,
+      });
     }
-
-    if (fileSize > 5000000) {
-      return res
-        .status(422)
-        .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
-    }
-
-    await file.mv(`./public/upload/images/${fileName}`);
-
-    var foto = fileName;
-    var foto_url = fileUrl;
 
     const newPerbaikan = await Perbaikan.create({
       id: uuidv4(),
@@ -208,42 +171,34 @@ async function updatePerbaikan(req, res) {
     var foto = perbaikan.foto;
     var foto_url = perbaikan.foto_url;
 
-    // Handle file upload if 'foto' is provided (similar to storeKendaraan)
     if (req.files && req.files.foto) {
-      const file = req.files.foto;
-      const fileSize = file.data.length;
-      const ext = path.extname(file.name);
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${file.name.replace(/\s/g, '')}`;
-      const fileUrl = `${req.protocol}://${req.get(
-        'host'
-      )}/upload/images/${fileName}`;
+      try {
+        const image = req.files.foto;
+        const destination = '/upload/images/perbaikan/';
 
-      const allowedTypes = ['.png', '.jpeg', '.jpg'];
+        const { fileName, fileUrl } = await imageFileUpload(
+          req,
+          image,
+          destination
+        );
 
-      if (!allowedTypes.includes(ext.toLowerCase())) {
-        return res.status(422).json({ message: 'File format salah!' });
-      }
+        if (foto !== fileName) {
+          if (perbaikan.foto) {
+            const destination = '/upload/images/perbaikan/';
+            const fileName = perbaikan.foto;
 
-      if (fileSize > 5000000) {
-        return res
-          .status(422)
-          .json({ message: 'Ukuran foto harus tidak lebih dari 5MB!' });
-      }
-
-      await file.mv(`./public/upload/images/${fileName}`);
-
-      if (foto !== fileName) {
-        if (perbaikan.foto) {
-          const filePath = `./public/upload/images/${perbaikan.foto}`;
-          if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+            await deleteFile(destination, fileName);
           }
         }
-      }
 
-      foto = fileName;
-      foto_url = fileUrl;
+        foto = fileName;
+        foto_url = fileUrl;
+      } catch (uploadError) {
+        return res.status(400).json({
+          message: 'Error uploading the image!',
+          error: uploadError.message,
+        });
+      }
     }
 
     await perbaikan.update({
@@ -278,10 +233,10 @@ async function destroyPerbaikan(req, res) {
     }
 
     if (perbaikan.foto) {
-      const filePath = `./public/upload/images/${perbaikan.foto}`;
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      const destination = '/upload/images/perbaikan/';
+      const fileName = perbaikan.foto;
+
+      await deleteFile(destination, fileName);
     }
     await perbaikan.destroy();
 
