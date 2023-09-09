@@ -1,4 +1,4 @@
-const { User, Kendaraan, Perbaikan, UserActivation } = require('../db/models');
+const { User, Kendaraan, UserActivation } = require('../db/models');
 const bcrypt = require('bcrypt');
 const { userValidationSchema } = require('../validator/userValidator');
 const { v4: uuidv4 } = require('uuid');
@@ -8,6 +8,7 @@ const fs = require('fs');
 // Get all users
 async function getAllUser(req, res) {
   try {
+    // Fetch all users, including their associated Kendaraan records
     const users = await User.findAll({
       include: {
         model: Kendaraan,
@@ -30,6 +31,7 @@ async function getAllUser(req, res) {
 async function getUserById(req, res) {
   try {
     const { id } = req.params;
+    // Find a user by ID, including related UserActivation and Kendaraan records
     const user = await User.findByPk(id, {
       include: [
         {
@@ -64,6 +66,7 @@ async function storeUser(req, res) {
     var foto = null;
     var foto_url = null;
 
+    // Validate user input
     const { error } = userValidationSchema.validate({
       nama,
       no_telp,
@@ -79,6 +82,7 @@ async function storeUser(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
+    // Check if the email is already registered
     const existingUser = await User.findOne({ where: { email } });
 
     if (existingUser) {
@@ -87,6 +91,7 @@ async function storeUser(req, res) {
         .json({ message: 'User dengan email ini sudah terdaftar!' });
     }
 
+    // Handle file upload if a photo is provided
     if (req.files && req.files.foto) {
       const file = req.files.foto;
       const fileSize = file.data.length;
@@ -115,9 +120,11 @@ async function storeUser(req, res) {
       foto_url = fileUrl;
     }
 
+    // Hash the user's password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Create a new user record
     const newUser = await User.create({
       id: uuidv4(),
       nama,
@@ -155,6 +162,7 @@ async function updateUser(req, res) {
 
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
 
+    // Validate user input
     const { error } = userValidationSchema.validate({
       nama,
       no_telp,
@@ -170,6 +178,7 @@ async function updateUser(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
+    // Check if the email is already registered (excluding the current user)
     const existingUser = await User.findOne({ where: { email } });
 
     if (existingUser && existingUser.id !== user.id) {
@@ -181,6 +190,7 @@ async function updateUser(req, res) {
     var foto = user.foto;
     var foto_url = user.foto_url;
 
+    // Handle file upload if a photo is provided (similar to storeUser)
     if (req.files && req.files.foto) {
       const file = req.files.foto;
       const fileSize = file.data.length;
@@ -218,9 +228,11 @@ async function updateUser(req, res) {
       foto_url = fileUrl;
     }
 
+    // Hash the user's password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Update the user record
     await user.update({
       nama,
       no_telp,
@@ -255,6 +267,7 @@ async function destroyUser(req, res) {
       return res.status(404).json({ message: 'User tidak ditemukan!' });
     }
 
+    // Check if the user has associated Kendaraan records
     if (user.foto) {
       const filePath = `./public/upload/images/${user.foto}`;
       if (fs.existsSync(filePath)) {
@@ -273,7 +286,7 @@ async function destroyUser(req, res) {
       where: { kendaraan_id: kendaraanIdsToDelete.map((k) => k.id) },
     });
 
-    // Then, delete related records in the "Kendaraans" table
+    // Delete related Kendaraan records
     await Kendaraan.destroy({
       where: { user_id: id },
     });
@@ -283,7 +296,7 @@ async function destroyUser(req, res) {
       where: { user_id: id },
     });
 
-    // Finally, delete the user from the "Users" table
+    // Finally, delete the user from the Users table
     await user.destroy();
 
     return res.status(200).json({
