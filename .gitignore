@@ -2,5 +2,7 @@ node_modules
 **/*.jpg
 **/*.jpeg
 **/*.png
+!/public/resources/
 !/public/upload/images/
+!/public/upload/file/
 .env
