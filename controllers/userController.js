@@ -1,4 +1,4 @@
-const { User, Kendaraan, UserActivation } = require('../db/models');
+const { User, Kendaraan, Perbaikan, UserActivation } = require('../db/models');
 const bcrypt = require('bcrypt');
 const { userValidationSchema } = require('../validator/userValidator');
 const { v4: uuidv4 } = require('uuid');
