@@ -237,7 +237,6 @@ async function updatePerbaikan(req, res) {
           if (perbaikan.foto) {
             const destination = '/upload/images/perbaikan/';
             const fileName = perbaikan.foto;
-
             await deleteFile(destination, fileName);
           }
         }
@@ -286,14 +285,30 @@ async function destroyPerbaikan(req, res) {
       return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
     }
 
-    // Check if the perbaikan record has a foto (image)
+    // Delete the perbaikan image file
     if (perbaikan.foto) {
       const destination = '/upload/images/perbaikan/';
       const fileName = perbaikan.foto;
-
-      // Delete the associated image file
       await deleteFile(destination, fileName);
     }
+
+    const relatedProgresPerbaikan = await ProgresPerbaikan.findAll({
+      where: { perbaikan_id: id },
+    });
+
+    // Delete the associated progres perbaikan image file
+    for (const progres of relatedProgresPerbaikan) {
+      if (progres.foto) {
+        await deleteFile('/upload/images/progres-perbaikan/', progres.foto);
+      }
+    }
+
+    // Delete the related progres perbaikan record from the database
+    await ProgresPerbaikan.destroy({
+      where: {
+        perbaikan_id: id,
+      },
+    });
 
     // Delete the perbaikan record from the database
     await perbaikan.destroy();
