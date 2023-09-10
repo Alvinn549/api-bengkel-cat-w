@@ -1,4 +1,11 @@
 const { ProgresPerbaikan, Perbaikan } = require('../db/models');
+const {
+  progresPerbaikanValidationSchema,
+} = require('../validator/progresPerbaikanValidator');
+const {
+  imageFileUpload,
+  deleteFile,
+} = require('../controllers/fileUploadController');
 
 async function getAllProgresPerbaikan(req, res) {
   try {
@@ -78,7 +85,54 @@ async function getProgresPerbaikanByPerbaikanId(req, res) {
 
 async function storeProgresPerbaikan(req, res) {
   try {
-    return res.status(200).json('storeProgresPerbaikan');
+    const { perbaikan_id, keterangan } = req.body;
+
+    const { error } = progresPerbaikanValidationSchema.validate({
+      perbaikan_id,
+      keterangan,
+    });
+
+    if (error) {
+      const errorMessage = error.details[0].message;
+      return res.status(400).json({ message: errorMessage });
+    }
+
+    if (!req.files || !req.files.foto) {
+      return res
+        .status(400)
+        .json({ message: 'Foto progres perbaikan tidak boleh kosong!' });
+    }
+
+    try {
+      const image = req.files.foto;
+      const destination = '/upload/images/progres-perbaikan/';
+
+      const { fileName, fileUrl } = await imageFileUpload(
+        req,
+        image,
+        destination
+      );
+
+      foto = fileName;
+      foto_url = fileUrl;
+    } catch (uploadError) {
+      return res.status(400).json({
+        message: 'Error uploading the image!',
+        error: uploadError.message,
+      });
+    }
+
+    const newProgresPerbaikan = await ProgresPerbaikan.create({
+      perbaikan_id,
+      keterangan,
+      foto,
+      foto_url,
+    });
+
+    return res.status(201).json({
+      message: 'Progres perbaikan berhasil disimpan!',
+      id: newProgresPerbaikan.id,
+    });
   } catch (error) {
     console.error(error);
     return res
