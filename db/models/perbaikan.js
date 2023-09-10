@@ -15,6 +15,14 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       // Has Many
+      Perbaikan.hasMany(models.ProgresPerbaikan, {
+        foreignKey: {
+          name: 'perbaikan_id',
+          allowNull: false,
+        },
+        as: 'progres_perbaikan',
+        onDelete: 'CASCADE',
+      });
     }
   }
   Perbaikan.init(
