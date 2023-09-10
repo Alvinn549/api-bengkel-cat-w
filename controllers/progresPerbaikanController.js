@@ -20,9 +20,31 @@ async function getAllProgresPerbaikan(req, res) {
   }
 }
 
-async function storeProgresPerbaikan(req, res) {
+async function getProgresPerbaikanById(req, res) {
   try {
-    return res.status(200).json('storeProgresPerbaikan');
+    const { id } = req.params;
+
+    if (isNaN(id)) {
+      return res
+        .status(400)
+        .json({ message: 'Invalid ID format. ID must be an integer.' });
+    }
+
+    const progresPerbaikan = await ProgresPerbaikan.findByPk(id, {
+      include: {
+        model: Perbaikan,
+        as: 'perbaikan',
+        attributes: ['id'],
+      },
+    });
+
+    if (!progresPerbaikan) {
+      return res
+        .status(404)
+        .json({ message: 'Progres Perbaikan tidak ditemukan!' });
+    }
+
+    return res.status(200).json(progresPerbaikan);
   } catch (error) {
     console.error(error);
     return res
@@ -31,9 +53,9 @@ async function storeProgresPerbaikan(req, res) {
   }
 }
 
-async function getProgresPerbaikanById(req, res) {
+async function storeProgresPerbaikan(req, res) {
   try {
-    return res.status(200).json('getProgresPerbaikanById');
+    return res.status(200).json('storeProgresPerbaikan');
   } catch (error) {
     console.error(error);
     return res
