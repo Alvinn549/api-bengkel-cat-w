@@ -1,6 +1,6 @@
 const {
-  Perbaikan,
   Kendaraan,
+  Perbaikan,
   ProgresPerbaikan,
   sequelize,
 } = require('../db/models');
@@ -298,17 +298,15 @@ async function destroyPerbaikan(req, res) {
 
     // Delete the associated progres perbaikan image file
     for (const progres of relatedProgresPerbaikan) {
+      // Delete the progres perbaikan image, if it exists
       if (progres.foto) {
-        await deleteFile('/upload/images/progres-perbaikan/', progres.foto);
+        const progresImageDestination = '/upload/images/progres-perbaikan/';
+        const progresImageFileName = progres.foto;
+        await deleteFile(progresImageDestination, progresImageFileName);
       }
+      // Delete the progres perbaikan record
+      await progres.destroy();
     }
-
-    // Delete the related progres perbaikan record from the database
-    await ProgresPerbaikan.destroy({
-      where: {
-        perbaikan_id: id,
-      },
-    });
 
     // Delete the perbaikan record from the database
     await perbaikan.destroy();

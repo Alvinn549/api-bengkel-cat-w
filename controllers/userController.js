@@ -1,4 +1,10 @@
-const { User, Kendaraan, Perbaikan, UserActivation } = require('../db/models');
+const {
+  User,
+  Kendaraan,
+  Perbaikan,
+  ProgresPerbaikan,
+  UserActivation,
+} = require('../db/models');
 const { userValidationSchema } = require('../validator/userValidator');
 const { v4: uuidv4 } = require('uuid');
 const {
@@ -265,28 +271,58 @@ async function destroyUser(req, res) {
 
     // If the user has a photo, delete it
     if (user.foto) {
-      const destination = '/upload/images/user/';
-      const fileName = user.foto;
-
-      // Use a function (deleteFile) to delete the user's photo file
-      await deleteFile(destination, fileName);
+      const userImageDestination = '/upload/images/user/';
+      const userImageFileName = user.foto;
+      await deleteFile(userImageDestination, userImageFileName);
     }
 
     // Find all kendaraan IDs associated with the user
-    const kendaraanIdsToDelete = await Kendaraan.findAll({
-      attributes: ['id'],
+    const relatedKendaraan = await Kendaraan.findAll({
       where: { user_id: id },
     });
 
-    // Delete all perbaikan records associated with the user's kendaraan
-    await Perbaikan.destroy({
-      where: { kendaraan_id: kendaraanIdsToDelete.map((k) => k.id) },
-    });
+    for (const kendaraan of relatedKendaraan) {
+      // Find all perbaikan records associated with the kendaraan
+      const relatedPerbaikan = await Perbaikan.findAll({
+        where: { kendaraan_id: kendaraan.id },
+      });
 
-    // Delete all kendaraan records associated with the user
-    await Kendaraan.destroy({
-      where: { user_id: id },
-    });
+      for (const perbaikan of relatedPerbaikan) {
+        // Find all progres perbaikan records associated with the perbaikan
+        const relatedProgresPerbaikan = await ProgresPerbaikan.findAll({
+          where: { perbaikan_id: perbaikan.id },
+        });
+
+        for (const progres of relatedProgresPerbaikan) {
+          // Delete the progres perbaikan image, if it exists
+          if (progres.foto) {
+            const progresImageDestination = '/upload/images/progres-perbaikan/';
+            const progresImageFileName = progres.foto;
+            await deleteFile(progresImageDestination, progresImageFileName);
+          }
+          // Delete the progres perbaikan record
+          await progres.destroy();
+        }
+
+        // Delete the perbaikan image, if it exists
+        if (perbaikan.foto) {
+          const perbaikanImageDestination = '/upload/images/perbaikan/';
+          const perbaikanImageFileName = perbaikan.foto;
+          await deleteFile(perbaikanImageDestination, perbaikanImageFileName);
+        }
+        // Delete the perbaikan record
+        await perbaikan.destroy();
+      }
+
+      // Delete the kendaraan image, if it exists
+      if (kendaraan.foto) {
+        const kendaraanImageDestination = '/upload/images/kendaraan/';
+        const kendaraanImageFileName = kendaraan.foto;
+        await deleteFile(kendaraanImageDestination, kendaraanImageFileName);
+      }
+      // Delete the kendaraan record
+      await kendaraan.destroy();
+    }
 
     // Delete any user activation records associated with the user
     await UserActivation.destroy({

@@ -1,4 +1,9 @@
-const { User, Kendaraan, Perbaikan } = require('../db/models');
+const {
+  User,
+  Kendaraan,
+  Perbaikan,
+  ProgresPerbaikan,
+} = require('../db/models');
 const {
   kendaraanValidationSchema,
 } = require('../validator/kendaraanValidator');
@@ -253,17 +258,32 @@ async function destroyKendaraan(req, res) {
       where: { kendaraan_id: id },
     });
 
-    // Delete the associated perbaikan image file
     for (const perbaikan of relatedPerbaikan) {
-      if (perbaikan.foto) {
-        await deleteFile('/upload/images/perbaikan/', perbaikan.foto);
-      }
-    }
+      // Find all progres perbaikan records associated with the perbaikan
+      const relatedProgresPerbaikan = await ProgresPerbaikan.findAll({
+        where: { perbaikan_id: perbaikan.id },
+      });
 
-    // Delete any associated Perbaikan records with the kendaraan
-    await Perbaikan.destroy({
-      where: { kendaraan_id: id },
-    });
+      for (const progres of relatedProgresPerbaikan) {
+        // Delete the progres perbaikan image, if it exists
+        if (progres.foto) {
+          const progresImageDestination = '/upload/images/progres-perbaikan/';
+          const progresImageFileName = progres.foto;
+          await deleteFile(progresImageDestination, progresImageFileName);
+        }
+        // Delete the progres perbaikan record
+        await progres.destroy();
+      }
+
+      // Delete the perbaikan image, if it exists
+      if (perbaikan.foto) {
+        const perbaikanImageDestination = '/upload/images/perbaikan/';
+        const perbaikanImageFileName = perbaikan.foto;
+        await deleteFile(perbaikanImageDestination, perbaikanImageFileName);
+      }
+      // Delete the perbaikan record
+      await perbaikan.destroy();
+    }
 
     // Finally, delete the kendaraan itself
     await kendaraan.destroy();
