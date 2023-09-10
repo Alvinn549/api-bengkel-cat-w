@@ -11,6 +11,7 @@ const {
 const userRoutes = require('./userRoutes');
 const kendaraanRoutes = require('./kendaraanRoutes');
 const perbaikanRoutes = require('./perbaikanRoutes');
+const progresPerbaikanRoutes = require('./progresPerbaikanRoutes');
 
 const router = express.Router();
 
@@ -37,13 +38,21 @@ router.get('/api/refresh-token', refreshToken);
 router.post('/api/verify-email', verifyEmail);
 router.post('/api/resend-verification-email', resendVerificationEmail);
 
-// ? /api/users
-router.use('/api/users', verifyToken, isAdmin, userRoutes);
+// ? /api/user
+router.use('/api/user', verifyToken, isAdmin, userRoutes);
 
-// ? /api/kendaraans
-router.use('/api/kendaraans', verifyToken, isAdmin, kendaraanRoutes);
+// ? /api/kendaraan
+router.use('/api/kendaraan', verifyToken, isAdmin, kendaraanRoutes);
 
-// ? /api/perbaikans
-router.use('/api/perbaikans', verifyToken, isAdmin, perbaikanRoutes);
+// ? /api/perbaikan
+router.use('/api/perbaikan', verifyToken, isAdmin, perbaikanRoutes);
+
+// ? /api/progres-perbaikan
+router.use(
+  '/api/progres-perbaikan',
+  verifyToken,
+  isAdmin,
+  progresPerbaikanRoutes
+);
 
 module.exports = router;
