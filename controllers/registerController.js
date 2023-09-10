@@ -21,15 +21,15 @@ async function registerUser(req, res) {
     } = req.body;
 
     // Validate the request body using a validation schema
-    const { error } = registerValidationSchema.validate(
+    const { error } = registerValidationSchema.validate({
       nama,
       no_telp,
       alamat,
       jenis_k,
       email,
       password,
-      confirm_password
-    );
+      confirm_password,
+    });
 
     if (error) {
       const errorMessage = error.details[0].message;
