@@ -63,6 +63,7 @@ async function getProgresPerbaikanById(req, res) {
 async function getProgresPerbaikanByPerbaikanId(req, res) {
   try {
     const { id: perbaikan_id } = req.params;
+
     const progresPerbaikan = await ProgresPerbaikan.findAll({
       where: { perbaikan_id: perbaikan_id },
       order: [['createdAt', 'DESC']],
@@ -144,6 +145,7 @@ async function storeProgresPerbaikan(req, res) {
 async function updateProgresPerbaikan(req, res) {
   try {
     const { id } = req.params;
+
     const progresPerbaikan = await ProgresPerbaikan.findByPk(id);
 
     if (!progresPerbaikan) {
@@ -218,7 +220,29 @@ async function updateProgresPerbaikan(req, res) {
 
 async function destroyProgresPerbaikan(req, res) {
   try {
-    return res.status(200).json('destroyProgresPerbaikan');
+    const { id } = req.params;
+
+    const progresPerbaikan = await ProgresPerbaikan.findByPk(id);
+
+    if (!progresPerbaikan) {
+      return res
+        .status(404)
+        .json({ message: 'Progres perbaikan tidak ditemukan!' });
+    }
+
+    if (progresPerbaikan.foto) {
+      const destination = '/upload/images/progres-perbaikan/';
+      const fileName = progresPerbaikan.foto;
+
+      await deleteFile(destination, fileName);
+    }
+
+    await progresPerbaikan.destroy();
+
+    return res.status(200).json({
+      message: 'Progres perbaikan berhasil dihapus!',
+      id,
+    });
   } catch (error) {
     console.error(error);
     return res
