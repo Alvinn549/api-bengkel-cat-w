@@ -143,7 +143,71 @@ async function storeProgresPerbaikan(req, res) {
 
 async function updateProgresPerbaikan(req, res) {
   try {
-    return res.status(200).json('updateProgresPerbaikan');
+    const { id } = req.params;
+    const progresPerbaikan = await ProgresPerbaikan.findByPk(id);
+
+    if (!progresPerbaikan) {
+      return res
+        .status(404)
+        .json({ message: 'Progres perbaikan tidak ditemukan!' });
+    }
+
+    const { perbaikan_id, keterangan } = req.body;
+
+    const { error } = progresPerbaikanValidationSchema.validate({
+      perbaikan_id,
+      keterangan,
+    });
+
+    if (error) {
+      const errorMessage = error.details[0].message;
+      return res.status(400).json({ message: errorMessage });
+    }
+
+    var foto = progresPerbaikan.foto;
+    var foto_url = progresPerbaikan.foto_url;
+
+    if (req.files && req.files.foto) {
+      try {
+        const image = req.files.foto;
+        const destination = '/upload/images/progres-perbaikan/';
+
+        const { fileName, fileUrl } = await imageFileUpload(
+          req,
+          image,
+          destination
+        );
+
+        if (foto !== fileName) {
+          if (progresPerbaikan.foto) {
+            const destination = '/upload/images/progres-perbaikan/';
+            const fileName = progresPerbaikan.foto;
+
+            await deleteFile(destination, fileName);
+          }
+        }
+
+        foto = fileName;
+        foto_url = fileUrl;
+      } catch (uploadError) {
+        return res.status(400).json({
+          message: 'Error uploading the image!',
+          error: uploadError.message,
+        });
+      }
+    }
+
+    await progresPerbaikan.update({
+      perbaikan_id,
+      keterangan,
+      foto,
+      foto_url,
+    });
+
+    return res.status(200).json({
+      message: 'Progres perbaikan berhasil diperbarui!',
+      id: progresPerbaikan.id,
+    });
   } catch (error) {
     console.error(error);
     return res
