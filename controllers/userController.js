@@ -61,14 +61,14 @@ async function getUserById(req, res) {
   }
 }
 
-// Create new user
+// Function to create a new user
 async function storeUser(req, res) {
   try {
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
     var foto = null;
     var foto_url = null;
 
-    // Validate user input
+    // Validate user data using a validation schema
     const { error } = userValidationSchema.validate({
       nama,
       no_telp,
@@ -84,7 +84,7 @@ async function storeUser(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
-    // Check if the email is already registered
+    // Check if a user with the same email already exists in the database
     const existingUser = await User.findOne({ where: { email } });
 
     if (existingUser) {
@@ -93,12 +93,13 @@ async function storeUser(req, res) {
         .json({ message: 'User dengan email ini sudah terdaftar!' });
     }
 
-    // Handle file upload if a photo is provided
+    // If the request contains a user photo, upload it to the server
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
         const destination = '/upload/images/user/';
 
+        // Use a function (imageFileUpload) to upload and get the file information
         const { fileName, fileUrl } = await imageFileUpload(
           req,
           image,
@@ -115,11 +116,11 @@ async function storeUser(req, res) {
       }
     }
 
-    // Hash the user password
+    // Generate a salt and hash the user's password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create a new user record
+    // Create a new user in the database with the provided data
     const newUser = await User.create({
       id: uuidv4(),
       nama,
@@ -145,10 +146,12 @@ async function storeUser(req, res) {
   }
 }
 
-// Update user
+// Function to update a user's information
 async function updateUser(req, res) {
   try {
     const { id } = req.params;
+
+    // Find the user by their ID
     const user = await User.findByPk(id);
 
     if (!user) {
@@ -156,10 +159,11 @@ async function updateUser(req, res) {
     }
 
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
+
     var foto = user.foto;
     var foto_url = user.foto_url;
 
-    // Validate user input
+    // Validate user input using a validation schema
     const { error } = userValidationSchema.validate({
       nama,
       no_telp,
@@ -175,20 +179,22 @@ async function updateUser(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
-    // Check if the email is already registered (excluding the current user)
+    // Check if the email is already registered by excluding the current user
     const existingUser = await User.findOne({ where: { email } });
+
     if (existingUser && existingUser.id !== user.id) {
       return res
         .status(409)
         .json({ message: 'User dengan email ini sudah terdaftar!' });
     }
 
-    // Handle file upload if a photo is provided (similar to storeUser)
+    // Handle file upload if a new photo is provided (similar to storeUser)
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
         const destination = '/upload/images/user/';
 
+        // Use a function (imageFileUpload) to upload and get the file information
         const { fileName, fileUrl } = await imageFileUpload(
           req,
           image,
@@ -215,11 +221,11 @@ async function updateUser(req, res) {
       }
     }
 
-    // Hash the user's password
+    // Generate a salt and hash the user's password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Update the user record
+    // Update the user record with the new information
     await user.update({
       nama,
       no_telp,
@@ -244,46 +250,49 @@ async function updateUser(req, res) {
   }
 }
 
-// Delete user
+// Function to delete a user and associated data
 async function destroyUser(req, res) {
   try {
     const { id } = req.params;
+
+    // Find the user by their ID
     const user = await User.findByPk(id);
 
     if (!user) {
       return res.status(404).json({ message: 'User tidak ditemukan!' });
     }
 
-    // Check if the user has foto records, then delete it
+    // If the user has a photo, delete it
     if (user.foto) {
       const destination = '/upload/images/user/';
       const fileName = user.foto;
 
+      // Use a function (deleteFile) to delete the user's photo file
       await deleteFile(destination, fileName);
     }
 
-    // First, find and delete related records in the "Perbaikans" table
+    // Find all kendaraan IDs associated with the user
     const kendaraanIdsToDelete = await Kendaraan.findAll({
       attributes: ['id'],
       where: { user_id: id },
     });
 
-    // Delete related Perbaikan records based on Kendaraan IDs
+    // Delete all perbaikan records associated with the user's kendaraan
     await Perbaikan.destroy({
       where: { kendaraan_id: kendaraanIdsToDelete.map((k) => k.id) },
     });
 
-    // Delete related Kendaraan records
+    // Delete all kendaraan records associated with the user
     await Kendaraan.destroy({
       where: { user_id: id },
     });
 
-    // Delete related UserActivation record
+    // Delete any user activation records associated with the user
     await UserActivation.destroy({
       where: { user_id: id },
     });
 
-    // Finally, delete the user from the Users table
+    // Finally, delete the user record
     await user.destroy();
 
     return res.status(200).json({

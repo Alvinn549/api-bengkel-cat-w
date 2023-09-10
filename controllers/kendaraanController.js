@@ -11,12 +11,12 @@ const {
 // Get all kendaraans
 async function getAllKendaraan(req, res) {
   try {
-    // Fetch all kendaraans, including their associated pemilik (User) records
+    // Fetch all kendaraans including their pemilik (owner)
     const kendaraans = await Kendaraan.findAll({
       include: {
         model: User,
         as: 'pemilik',
-        attributes: ['id', 'nama', 'no_telp', 'alamat', 'role'],
+        attributes: ['id', 'nama', 'no_telp', 'alamat'],
       },
       order: [['createdAt', 'DESC']],
     });
@@ -35,7 +35,7 @@ async function getKendaraanById(req, res) {
   try {
     const { id } = req.params;
 
-    // Find a kendaraan by ID, including related pemilik (User) and perbaikan (Perbaikan) records
+    // Fetch a kendaraan by its ID, including related data like pemilik and perbaikan
     const kendaraan = await Kendaraan.findByPk(id, {
       include: [
         {
@@ -69,7 +69,7 @@ async function storeKendaraan(req, res) {
   try {
     const { user_id, no_plat, merek } = req.body;
 
-    // Validate user input
+    // Validate the incoming data using kendaraanValidationSchema
     const { error } = kendaraanValidationSchema.validate({
       user_id,
       no_plat,
@@ -81,7 +81,7 @@ async function storeKendaraan(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
-    // Check if the kendaraan with the same no_plat already exists
+    // Check if a kendaraan with the same no_plat already exists
     const existingKendaraan = await Kendaraan.findOne({ where: { no_plat } });
 
     if (existingKendaraan) {
@@ -90,18 +90,18 @@ async function storeKendaraan(req, res) {
         .json({ message: 'Kendaraan dengan No Plat ini sudah terdaftar!' });
     }
 
-    // Check if the 'foto' field exists in the request files
+    // Check if the request includes a file named 'foto'
     if (!req.files || !req.files.foto) {
       return res
         .status(400)
         .json({ message: 'Foto kendaraan tidak boleh kosong!' });
     }
 
-    // Handle file upload if 'foto' is provided
     try {
       const image = req.files.foto;
       const destination = '/upload/images/kendaraan/';
 
+      // Upload the image and get file details (fileName and fileUrl)
       const { fileName, fileUrl } = await imageFileUpload(
         req,
         image,
@@ -117,7 +117,7 @@ async function storeKendaraan(req, res) {
       });
     }
 
-    // Create a new kendaraan record
+    // Create a new kendaraan in the database with the uploaded image details
     const newKendaraaan = await Kendaraan.create({
       id: uuidv4(),
       user_id,
@@ -143,6 +143,8 @@ async function storeKendaraan(req, res) {
 async function updateKendaraan(req, res) {
   try {
     const { id } = req.params;
+
+    // Find the kendaraan by ID
     const kendaraan = await Kendaraan.findByPk(id);
 
     if (!kendaraan) {
@@ -151,7 +153,7 @@ async function updateKendaraan(req, res) {
 
     const { user_id, no_plat, merek } = req.body;
 
-    // Validate user input
+    // Validate the incoming data using kendaraanValidationSchema
     const { error } = kendaraanValidationSchema.validate({
       user_id,
       no_plat,
@@ -163,7 +165,7 @@ async function updateKendaraan(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
-    // Check if a kendaraan with the same no_plat already exists (excluding the current kendaraan)
+    // Check if a kendaraan with the same no_plat already exists
     const existingKendaraan = await Kendaraan.findOne({ where: { no_plat } });
 
     if (existingKendaraan && existingKendaraan.id !== kendaraan.id) {
@@ -175,19 +177,20 @@ async function updateKendaraan(req, res) {
     var foto = kendaraan.foto;
     var foto_url = kendaraan.foto_url;
 
-    // Handle file upload if a photo is provided (similar to storeUser)
+    // Check if the request includes a file named 'foto'
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
         const destination = '/upload/images/kendaraan/';
 
+        // Upload the new image and get file details (fileName and fileUrl)
         const { fileName, fileUrl } = await imageFileUpload(
           req,
           image,
           destination
         );
 
-        // If the new photo name is different, delete the old photo file
+        // If the new image is different from the previous one, delete the old image
         if (foto !== fileName) {
           if (kendaraan.foto) {
             const destination = '/upload/images/kendaraan/';
@@ -207,7 +210,7 @@ async function updateKendaraan(req, res) {
       }
     }
 
-    // Update the kendaraan record
+    // Update the kendaraan's details in the database
     await kendaraan.update({
       user_id,
       no_plat,
@@ -231,25 +234,29 @@ async function updateKendaraan(req, res) {
 async function destroyKendaraan(req, res) {
   try {
     const { id } = req.params;
+
+    // Find the kendaraan by its ID
     const kendaraan = await Kendaraan.findByPk(id);
 
     if (!kendaraan) {
       return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
     }
 
+    // Check if the kendaraan has a foto (image)
     if (kendaraan.foto) {
       const destination = '/upload/images/kendaraan/';
       const fileName = kendaraan.foto;
 
+      // Delete the associated image file
       await deleteFile(destination, fileName);
     }
 
-    // Delete related Perbaikan records
+    // Delete any associated Perbaikan records with the kendaraan
     await Perbaikan.destroy({
       where: { kendaraan_id: id },
     });
 
-    // Delete the kendaraan record
+    // Finally, delete the kendaraan itself
     await kendaraan.destroy();
 
     return res.status(200).json({

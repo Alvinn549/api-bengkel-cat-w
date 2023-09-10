@@ -16,6 +16,7 @@ const {
 // Get all perbaikan
 async function getAllPerbaikan(req, res) {
   try {
+    // Fetch all Perbaikan records with specified attributes and associations
     const perbaikans = await Perbaikan.findAll({
       attributes: [
         'id',
@@ -35,7 +36,7 @@ async function getAllPerbaikan(req, res) {
             FROM "ProgresPerbaikans"
             WHERE "ProgresPerbaikans"."perbaikan_id" = "Perbaikan"."id"
           )`),
-          'total_progres', // Alias for the progress count
+          'total_progres',
         ],
       ],
       include: {
@@ -43,8 +44,8 @@ async function getAllPerbaikan(req, res) {
         as: 'kendaraan',
         attributes: ['id', 'no_plat', 'merek'],
       },
-
-      order: [['createdAt', 'DESC']],
+      limit: 100,
+      order: [['createdAt', 'DESC']], // Order the results by createdAt in descending order
     });
 
     return res.status(200).json(perbaikans);
@@ -60,6 +61,8 @@ async function getAllPerbaikan(req, res) {
 async function getPerbaikanById(req, res) {
   try {
     const { id } = req.params;
+
+    // Find the perbaikan by its ID, including associated Kendaraan and ProgresPerbaikan records
     const perbaikan = await Perbaikan.findByPk(id, {
       include: [
         {
@@ -92,6 +95,8 @@ async function getPerbaikanById(req, res) {
 async function getPerbaikanByKendaraanId(req, res) {
   try {
     const { id: kendaraan_id } = req.params;
+
+    // Find all perbaikans associated with the specified kendaraan_id, ordered by createdAt in descending order
     const perbaikans = await Perbaikan.findAll({
       where: { kendaraan_id: kendaraan_id },
       order: [['createdAt', 'DESC']],
@@ -115,6 +120,7 @@ async function storePerbaikan(req, res) {
   try {
     const { kendaraan_id, keterangan, estimasi_biaya } = req.body;
 
+    // Validate the request data using perbaikanValidationSchema
     const { error } = perbaikanValidationSchema.validate({
       kendaraan_id,
       keterangan,
@@ -126,6 +132,7 @@ async function storePerbaikan(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
+    // Check if the request contains the required foto field
     if (!req.files || !req.files.foto) {
       return res
         .status(400)
@@ -136,6 +143,7 @@ async function storePerbaikan(req, res) {
       const image = req.files.foto;
       const destination = '/upload/images/perbaikan/';
 
+      // Upload the image and get the resulting fileName and fileUrl
       const { fileName, fileUrl } = await imageFileUpload(
         req,
         image,
@@ -151,6 +159,7 @@ async function storePerbaikan(req, res) {
       });
     }
 
+    // Create a new perbaikan record with the provided data
     const newPerbaikan = await Perbaikan.create({
       id: uuidv4(),
       kendaraan_id,
@@ -178,6 +187,8 @@ async function storePerbaikan(req, res) {
 async function updatePerbaikan(req, res) {
   try {
     const { id } = req.params;
+
+    // Find the perbaikan record by ID
     const perbaikan = await Perbaikan.findByPk(id);
 
     if (!perbaikan) {
@@ -187,9 +198,11 @@ async function updatePerbaikan(req, res) {
     const { kendaraan_id, keterangan, estimasi_biaya, tanggal_keluar, status } =
       req.body;
 
+    // Ensure that tanggal_keluar and status are set to null if they are not provided
     const tanggalKeluar = tanggal_keluar || null;
     const statusValue = status || null;
 
+    // Validate the request data using perbaikanValidationSchema
     const { error } = perbaikanValidationSchema.validate({
       kendaraan_id,
       keterangan,
@@ -206,17 +219,20 @@ async function updatePerbaikan(req, res) {
     var foto = perbaikan.foto;
     var foto_url = perbaikan.foto_url;
 
+    // Check if a new foto is provided in the request
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
         const destination = '/upload/images/perbaikan/';
 
+        // Upload the new image and get the resulting fileName and fileUrl
         const { fileName, fileUrl } = await imageFileUpload(
           req,
           image,
           destination
         );
 
+        // If the new fileName is different from the existing foto, delete the old image
         if (foto !== fileName) {
           if (perbaikan.foto) {
             const destination = '/upload/images/perbaikan/';
@@ -236,6 +252,7 @@ async function updatePerbaikan(req, res) {
       }
     }
 
+    // Update the perbaikan record with the provided data
     await perbaikan.update({
       kendaraan_id,
       keterangan,
@@ -261,18 +278,24 @@ async function updatePerbaikan(req, res) {
 async function destroyPerbaikan(req, res) {
   try {
     const { id } = req.params;
+
+    // Find the perbaikan record by ID
     const perbaikan = await Perbaikan.findByPk(id);
 
     if (!perbaikan) {
       return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
     }
 
+    // Check if the perbaikan record has a foto (image)
     if (perbaikan.foto) {
       const destination = '/upload/images/perbaikan/';
       const fileName = perbaikan.foto;
 
+      // Delete the associated image file
       await deleteFile(destination, fileName);
     }
+
+    // Delete the perbaikan record from the database
     await perbaikan.destroy();
 
     return res.status(200).json({

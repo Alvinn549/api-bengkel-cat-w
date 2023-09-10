@@ -1,12 +1,13 @@
 const path = require('path');
 const fs = require('fs');
 
-const rootPath = './public';
+const rootPath = './public'; // Root directory for file operations
 
+// Function to handle image file upload
 async function imageFileUpload(req, image, destination) {
   try {
-    const ext = path.extname(image.name);
-    const fileSize = image.data.length;
+    const ext = path.extname(image.name); // Get the file extension
+    const fileSize = image.data.length; // Get the file size in bytes
 
     // Create a unique file name by combining the timestamp and removing spaces
     const fileName = `${Date.now()}-${image.name.replace(/\s/g, '')}`;
@@ -37,10 +38,12 @@ async function imageFileUpload(req, image, destination) {
   }
 }
 
+// Function to delete a file from a specified destination
 async function deleteFile(destination, fileName) {
   try {
     const file = `${rootPath}${destination}${fileName}`;
 
+    // Check if the file exists and delete it
     if (fs.existsSync(file)) {
       fs.unlinkSync(file);
     }
@@ -48,6 +51,7 @@ async function deleteFile(destination, fileName) {
     throw new Error(error.message);
   }
 }
+
 module.exports = {
   imageFileUpload,
   deleteFile,

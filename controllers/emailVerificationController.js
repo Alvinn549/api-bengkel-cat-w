@@ -3,10 +3,13 @@ const bcrypt = require('bcrypt');
 const { User, UserActivation } = require('../db/models');
 const randomstring = require('randomstring');
 
+// Function to send a verification email
 function sendVerificationEmail(email, code) {
-  const expireTime = new Date(Date.now() + 30 * 60 * 1000); // Expiration time (30 minutes from now)
+  // Calculate expiration time for the verification code (30 minutes from now)
+  const expireTime = new Date(Date.now() + 30 * 60 * 1000);
   const expireTimeString = expireTime.toLocaleString(); // Convert expiration time to a readable format
 
+  // Create a nodemailer transporter to send the email
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -16,6 +19,7 @@ function sendVerificationEmail(email, code) {
     },
   });
 
+  // Email content and options
   const mailOptions = {
     from: 'alvinnuha@it.student.pens.ac.id',
     to: email,
@@ -39,18 +43,20 @@ function sendVerificationEmail(email, code) {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log(error);
-      return false;
+      return false; // Email sending failed
     } else {
       console.log('Verification email sent');
-      return true;
+      return true; // Email sent successfully
     }
   });
 }
 
+// Function to handle email verification
 async function verifyEmail(req, res) {
   try {
     const { email, code: verificationCode } = req.body;
 
+    // Find the user with the provided email, including activation details
     const user = await User.findOne({
       where: { email },
       include: {
@@ -75,16 +81,16 @@ async function verifyEmail(req, res) {
 
     const expireAt = user.activation.expireAt;
 
+    // Check if the verification code has expired
     if (expireAt && expireAt < new Date()) {
       return res
         .status(400)
         .json({ message: 'Verification code has expired!' });
     }
 
+    // Mark the user as active and delete the activation record
     user.isActive = true;
-
     await user.save();
-
     await user.activation.destroy();
 
     return res.json({ message: 'Email verification successful' });
@@ -96,10 +102,12 @@ async function verifyEmail(req, res) {
   }
 }
 
+// Function to resend a verification email
 async function resendVerificationEmail(req, res) {
   try {
     const { email } = req.body;
 
+    // Find the user with the provided email, including activation details
     const user = await User.findOne({
       where: { email },
       include: {
@@ -116,16 +124,14 @@ async function resendVerificationEmail(req, res) {
       return res.json({ message: 'Email already verified' });
     }
 
+    // Generate a new verification code and salt for hashing
     const currentTime = new Date();
     const verificationCode = randomstring.generate(6);
     const salt = await bcrypt.genSalt(10);
 
     try {
+      // Send a new verification email
       sendVerificationEmail(email, verificationCode);
-
-      if (sendVerificationEmail) {
-        console.log('code terkirim');
-      }
 
       user.activation.code = await bcrypt.hash(verificationCode, salt);
       user.activation.expireAt = new Date(
