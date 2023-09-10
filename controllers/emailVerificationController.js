@@ -17,26 +17,27 @@ function sendVerificationEmail(email, code) {
       user: process.env.SMTP_USERNAME,
       pass: process.env.SMTP_PASSWORD,
     },
+    from: process.env.SMTP_USERNAME,
   });
 
   // Email content and options
   const mailOptions = {
-    from: 'alvinnuha@it.student.pens.ac.id',
+    from: 'e.bengkel.mail@gmail.com',
     to: email,
     subject: 'Email Verification',
     html: `
-        <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-          <div style="background-color: #F8F9FA; padding: 20px; border-radius: 10px; text-align: center;">
-            <h1 style="color: #007BFF;">Welcome to Our App!</h1>
-            <p>Thank you for registering an account with us.</p>
-            <div style="background-color: #FFFFFF; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: inline-block; width: 200px;">
-              <h2 style="color: #DC3545;">${code}</h2>
-            </div>
-            <p>To complete your registration, please enter the above verification code.</p>
-            <p>Code will expires in 30 minutes</p>
-            <p style="margin-top: 10px;">Please note that the verification code will expire on <strong>${expireTimeString}</strong>.</p>
-          </div>
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <div style="background-color: #F8F9FA; padding: 20px; border-radius: 10px; text-align: center;">
+          <h1 style="color: #007BFF;">Welcome to Our App!</h1>
+          <p>Thank you for registering an account with us.</p>
+        <div style="background-color: #FFFFFF; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: inline-block; width: 200px;">
+          <h2 style="color: #DC3545;">${code}</h2>
         </div>
+          <p>To complete your registration, please enter the above verification code.</p>
+          <p>Code will expire in 30 minutes</p>
+          <p style="margin-top: 10px;">Please note that the verification code will expire on <strong>${expireTimeString}</strong>.</p>
+        </div>
+      </div>
       `,
   };
 
