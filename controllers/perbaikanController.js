@@ -45,7 +45,7 @@ async function getAllPerbaikan(req, res) {
         attributes: ['id', 'no_plat', 'merek'],
       },
       limit: 100,
-      order: [['createdAt', 'DESC']], // Order the results by createdAt in descending order
+      order: [['createdAt', 'DESC']],
     });
 
     return res.status(200).json(perbaikans);

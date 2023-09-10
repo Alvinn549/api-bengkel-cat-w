@@ -33,6 +33,7 @@ async function getAllUser(req, res) {
 async function getUserById(req, res) {
   try {
     const { id } = req.params;
+
     // Find a user by ID, including related UserActivation and Kendaraan records
     const user = await User.findByPk(id, {
       include: [
