@@ -1,4 +1,9 @@
-const { Perbaikan, Kendaraan } = require('../db/models');
+const {
+  Perbaikan,
+  Kendaraan,
+  ProgresPerbaikan,
+  sequelize,
+} = require('../db/models');
 const {
   perbaikanValidationSchema,
 } = require('../validator/perbaikanValidator');
@@ -12,11 +17,33 @@ const {
 async function getAllPerbaikan(req, res) {
   try {
     const perbaikans = await Perbaikan.findAll({
+      attributes: [
+        'id',
+        'kendaraan_id',
+        'keterangan',
+        'tanggal_masuk',
+        'tanggal_keluar',
+        'foto',
+        'foto_url',
+        'estimasi_biaya',
+        'status',
+        'createdAt',
+        'updatedAt',
+        [
+          sequelize.literal(`(
+            SELECT COUNT(*)
+            FROM "ProgresPerbaikans"
+            WHERE "ProgresPerbaikans"."perbaikan_id" = "Perbaikan"."id"
+          )`),
+          'total_progres', // Alias for the progress count
+        ],
+      ],
       include: {
         model: Kendaraan,
         as: 'kendaraan',
         attributes: ['id', 'no_plat', 'merek'],
       },
+
       order: [['createdAt', 'DESC']],
     });
 
@@ -34,11 +61,18 @@ async function getPerbaikanById(req, res) {
   try {
     const { id } = req.params;
     const perbaikan = await Perbaikan.findByPk(id, {
-      include: {
-        model: Kendaraan,
-        as: 'kendaraan',
-        attributes: ['id', 'no_plat', 'merek'],
-      },
+      include: [
+        {
+          model: Kendaraan,
+          as: 'kendaraan',
+          attributes: ['id', 'no_plat', 'merek'],
+        },
+        {
+          model: ProgresPerbaikan,
+          as: 'progres_perbaikan',
+          attributes: ['id'],
+        },
+      ],
     });
 
     if (!perbaikan) {
@@ -53,6 +87,7 @@ async function getPerbaikanById(req, res) {
       .json({ error: 'Internal server error!', message: error.message });
   }
 }
+
 // Get perbaikan by ID Kendaraan
 async function getPerbaikanByKendaraanId(req, res) {
   try {
