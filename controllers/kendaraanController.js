@@ -242,13 +242,22 @@ async function destroyKendaraan(req, res) {
       return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
     }
 
-    // Check if the kendaraan has a foto (image)
+    // Delete the kendaraan image file
     if (kendaraan.foto) {
       const destination = '/upload/images/kendaraan/';
       const fileName = kendaraan.foto;
-
-      // Delete the associated image file
       await deleteFile(destination, fileName);
+    }
+
+    const relatedPerbaikan = await Perbaikan.findAll({
+      where: { kendaraan_id: id },
+    });
+
+    // Delete the associated perbaikan image file
+    for (const perbaikan of relatedPerbaikan) {
+      if (perbaikan.foto) {
+        await deleteFile('/upload/images/perbaikan/', perbaikan.foto);
+      }
     }
 
     // Delete any associated Perbaikan records with the kendaraan
