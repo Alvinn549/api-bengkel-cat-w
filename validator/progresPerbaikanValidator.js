@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const progresPerbaikanValidationSchema = Joi.object({
-  perbaikan_id: Joi.string().required(),
+  perbaikan_id: Joi.string().guid({ version: 'uuidv4' }).required(),
   keterangan: Joi.string().required(),
 });
 
