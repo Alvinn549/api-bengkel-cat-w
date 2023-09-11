@@ -69,6 +69,32 @@ async function getKendaraanById(req, res) {
   }
 }
 
+// Get kendaraan by pemilik
+async function getKendaraanByOwner(req, res) {
+  try {
+    const { id: user_id } = req.params;
+
+    // Find all kendaraan associated with the specified user_id, ordered by createdAt in descending order
+    const kendaraan = await Kendaraan.findAll({
+      where: {
+        user_id: user_id,
+      },
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (!kendaraan) {
+      return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
+    }
+
+    return res.status(200).json(kendaraan);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Internal server error!', message: error.message });
+  }
+}
+
 // Create new kendaraan
 async function storeKendaraan(req, res) {
   try {
@@ -303,6 +329,7 @@ async function destroyKendaraan(req, res) {
 module.exports = {
   getAllKendaraan,
   getKendaraanById,
+  getKendaraanByOwner,
   storeKendaraan,
   updateKendaraan,
   destroyKendaraan,

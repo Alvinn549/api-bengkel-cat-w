@@ -2,6 +2,7 @@ const express = require('express');
 const {
   getAllKendaraan,
   getKendaraanById,
+  getKendaraanByOwner,
   storeKendaraan,
   updateKendaraan,
   destroyKendaraan,
@@ -14,6 +15,8 @@ router.get('/', getAllKendaraan); // ? Get all kendaraan -> "GET" -> /api/kendar
 router.post('/', storeKendaraan); // ? Create kendaraan -> "POST" -> /api/kendaraan
 
 router.get('/:id', getKendaraanById); // ? Get kendaraan by Id -> "GET" -> /api/kendaraan/:id
+
+router.get('/get-by-owner/:id', getKendaraanByOwner); // ? Get kendaraan by owner -> "GET" -> /api/kendaraan/get-by-owner/:id
 
 router.put('/:id', updateKendaraan); // ? Update kendaraan -> "PUT" -> /api/kendaraan/:id
 
