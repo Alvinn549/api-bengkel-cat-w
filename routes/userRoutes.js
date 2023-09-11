@@ -9,11 +9,14 @@ const {
 
 const router = express.Router();
 
-router.get('/', getAllUser); //        ? Get all users  -> "GET"    -> /api/users
-router.post('/', storeUser); //        ? Create user    -> "POST"   -> /api/users
+router.get('/', getAllUser); // ? Get all users -> "GET" -> /api/user
 
-router.get('/:id', getUserById); //    ? Get user by Id -> "GET"    -> /api/users/:id
-router.put('/:id', updateUser); //     ? Update user    -> "PUT"    -> /api/users/:id
-router.delete('/:id', destroyUser); // ? Delete user    -> "DELETE" -> /api/users/:id
+router.post('/', storeUser); // ? Create user -> "POST" -> /api/user
+
+router.get('/:id', getUserById); // ? Get user by Id -> "GET" -> /api/user/:id
+
+router.put('/:id', updateUser); // ? Update user -> "PUT" -> /api/user/:id
+
+router.delete('/:id', destroyUser); // ? Delete user -> "DELETE" -> /api/user/:id
 
 module.exports = router;

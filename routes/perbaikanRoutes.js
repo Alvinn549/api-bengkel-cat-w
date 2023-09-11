@@ -2,21 +2,24 @@ const express = require('express');
 const {
   getAllPerbaikan,
   getPerbaikanById,
+  getPerbaikanByKendaraan,
   storePerbaikan,
   updatePerbaikan,
   destroyPerbaikan,
-  getPerbaikanByKendaraanId,
 } = require('../controllers/perbaikanController');
 
 const router = express.Router();
 
-router.get('/', getAllPerbaikan); //        ? Get all perbaikan   -> "GET"    -> /api/perbaikans
-router.post('/', storePerbaikan); //        ? Create perbaikan    -> "POST"   -> /api/perbaikans
+router.get('/', getAllPerbaikan); // ? Get all perbaikan -> "GET" -> /api/perbaikan
 
-router.get('/:id', getPerbaikanById); //    ? Get perbaikan by Id -> "GET"    -> /api/perbaikans/:id
-router.put('/:id', updatePerbaikan); //     ? Update perbaikan    -> "PUT"    -> /api/perbaikans/:id
-router.delete('/:id', destroyPerbaikan); // ? Delete perbaikan    -> "DELETE" -> /api/perbaikans/:id
+router.post('/', storePerbaikan); // ? Create perbaikan -> "POST" -> /api/perbaikan
 
-router.get('/get-by-kendaraan-id/:id', getPerbaikanByKendaraanId); // ? Delete perbaikan    -> "DELETE" -> /api/perbaikans/:id
+router.get('/:id', getPerbaikanById); // ? Get perbaikan by Id -> "GET" -> /api/perbaikan/:id
+
+router.get('/get-by-kendaraan/:id', getPerbaikanByKendaraan); // ? Get perbaikan by kendaraan -> "DELETE" -> /api/perbaikan/get-by-kendaraan/:id
+
+router.put('/:id', updatePerbaikan); // ? Update perbaikan-> "PUT"-> /api/perbaikan/:id
+
+router.delete('/:id', destroyPerbaikan); // ? Delete perbaikan -> "DELETE" -> /api/perbaikan/:id
 
 module.exports = router;

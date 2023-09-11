@@ -66,7 +66,7 @@ async function getProgresPerbaikanById(req, res) {
 }
 
 // Get progres perbaikan by Perbaikan ID
-async function getProgresPerbaikanByPerbaikanId(req, res) {
+async function getProgresPerbaikanByPerbaikan(req, res) {
   try {
     const { id: perbaikan_id } = req.params;
 
@@ -280,8 +280,8 @@ async function destroyProgresPerbaikan(req, res) {
 module.exports = {
   getAllProgresPerbaikan,
   getProgresPerbaikanById,
+  getProgresPerbaikanByPerbaikan,
   storeProgresPerbaikan,
   updateProgresPerbaikan,
   destroyProgresPerbaikan,
-  getProgresPerbaikanByPerbaikanId,
 };
