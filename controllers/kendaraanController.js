@@ -7,7 +7,7 @@ const {
 const {
   kendaraanValidationSchema,
 } = require('../validator/kendaraanValidator');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4, validate: isUUID } = require('uuid');
 const {
   imageFileUpload,
   deleteFile,
@@ -39,6 +39,11 @@ async function getAllKendaraan(req, res) {
 async function getKendaraanById(req, res) {
   try {
     const { id } = req.params;
+
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+    }
 
     // Fetch a kendaraan by its ID, including related data like pemilik and perbaikan
     const kendaraan = await Kendaraan.findByPk(id, {
@@ -73,6 +78,11 @@ async function getKendaraanById(req, res) {
 async function getKendaraanByOwner(req, res) {
   try {
     const { id: user_id } = req.params;
+
+    // Validate the user_id as a UUID
+    if (!isUUID(user_id, 4)) {
+      return res.status(400).json({ message: 'Invalid user ID format!' });
+    }
 
     // Find all kendaraan associated with the specified user_id, ordered by createdAt in descending order
     const kendaraan = await Kendaraan.findAll({
@@ -175,6 +185,11 @@ async function updateKendaraan(req, res) {
   try {
     const { id } = req.params;
 
+    // Validate the kendaraan_id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+    }
+
     // Find the kendaraan by ID
     const kendaraan = await Kendaraan.findByPk(id);
 
@@ -226,7 +241,6 @@ async function updateKendaraan(req, res) {
           if (kendaraan.foto) {
             const destination = '/upload/images/kendaraan/';
             const fileName = kendaraan.foto;
-
             await deleteFile(destination, fileName);
           }
         }
@@ -265,6 +279,11 @@ async function updateKendaraan(req, res) {
 async function destroyKendaraan(req, res) {
   try {
     const { id } = req.params;
+
+    // Validate the kendaraan_id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+    }
 
     // Find the kendaraan by its ID
     const kendaraan = await Kendaraan.findByPk(id);

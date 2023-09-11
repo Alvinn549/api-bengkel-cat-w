@@ -7,6 +7,8 @@ const {
   deleteFile,
 } = require('../controllers/fileUploadController');
 
+const { validate: isUUID } = require('uuid');
+
 // Get all progres perbaikans
 async function getAllProgresPerbaikan(req, res) {
   try {
@@ -69,6 +71,11 @@ async function getProgresPerbaikanById(req, res) {
 async function getProgresPerbaikanByPerbaikan(req, res) {
   try {
     const { id: perbaikan_id } = req.params;
+
+    // Validate the perbaikan_id as a UUID
+    if (!isUUID(perbaikan_id, 4)) {
+      return res.status(400).json({ message: 'Invalid perbaikan ID format!' });
+    }
 
     // Find all progres perbaikan associated with the specified Perbaikan ID
     const progresPerbaikan = await ProgresPerbaikan.findAll({
@@ -159,6 +166,13 @@ async function updateProgresPerbaikan(req, res) {
   try {
     const { id } = req.params;
 
+    // Check if 'id' is a valid integer
+    if (isNaN(id)) {
+      return res
+        .status(400)
+        .json({ message: 'Invalid ID format. ID must be an integer.' });
+    }
+
     // Find the ProgresPerbaikan record by its ID
     const progresPerbaikan = await ProgresPerbaikan.findByPk(id);
 
@@ -242,6 +256,13 @@ async function updateProgresPerbaikan(req, res) {
 async function destroyProgresPerbaikan(req, res) {
   try {
     const { id } = req.params;
+
+    // Check if 'id' is a valid integer
+    if (isNaN(id)) {
+      return res
+        .status(400)
+        .json({ message: 'Invalid ID format. ID must be an integer.' });
+    }
 
     // Find the ProgresPerbaikan record by its ID
     const progresPerbaikan = await ProgresPerbaikan.findByPk(id);

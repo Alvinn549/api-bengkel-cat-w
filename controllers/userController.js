@@ -6,7 +6,7 @@ const {
   UserActivation,
 } = require('../db/models');
 const { userValidationSchema } = require('../validator/userValidator');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4, validate: isUUID } = require('uuid');
 const {
   imageFileUpload,
   deleteFile,
@@ -39,6 +39,11 @@ async function getAllUser(req, res) {
 async function getUserById(req, res) {
   try {
     const { id } = req.params;
+
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid user ID format!' });
+    }
 
     // Find a user by ID, including related UserActivation and Kendaraan records
     const user = await User.findByPk(id, {
@@ -158,6 +163,11 @@ async function updateUser(req, res) {
   try {
     const { id } = req.params;
 
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid user ID format!' });
+    }
+
     // Find the user by their ID
     const user = await User.findByPk(id);
 
@@ -261,6 +271,11 @@ async function updateUser(req, res) {
 async function destroyUser(req, res) {
   try {
     const { id } = req.params;
+
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid user ID format!' });
+    }
 
     // Find the user by their ID
     const user = await User.findByPk(id);

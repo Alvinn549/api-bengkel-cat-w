@@ -7,7 +7,7 @@ const {
 const {
   perbaikanValidationSchema,
 } = require('../validator/perbaikanValidator');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4, validate: isUUID } = require('uuid');
 const {
   imageFileUpload,
   deleteFile,
@@ -62,6 +62,11 @@ async function getPerbaikanById(req, res) {
   try {
     const { id } = req.params;
 
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid perbaikan ID format!' });
+    }
+
     // Find the perbaikan by its ID, including associated Kendaraan and ProgresPerbaikan records
     const perbaikan = await Perbaikan.findByPk(id, {
       include: [
@@ -95,6 +100,11 @@ async function getPerbaikanById(req, res) {
 async function getPerbaikanByKendaraan(req, res) {
   try {
     const { id: kendaraan_id } = req.params;
+
+    // Validate the kendaraan_id as a UUID
+    if (!isUUID(kendaraan_id, 4)) {
+      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+    }
 
     // Find all perbaikans associated with the specified kendaraan_id, ordered by createdAt in descending order
     const perbaikans = await Perbaikan.findAll({
@@ -188,6 +198,11 @@ async function updatePerbaikan(req, res) {
   try {
     const { id } = req.params;
 
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid perbaikan ID format!' });
+    }
+
     // Find the perbaikan record by ID
     const perbaikan = await Perbaikan.findByPk(id);
 
@@ -277,6 +292,11 @@ async function updatePerbaikan(req, res) {
 async function destroyPerbaikan(req, res) {
   try {
     const { id } = req.params;
+
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid perbaikan ID format!' });
+    }
 
     // Find the perbaikan record by ID
     const perbaikan = await Perbaikan.findByPk(id);
