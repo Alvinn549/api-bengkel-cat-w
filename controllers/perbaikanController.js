@@ -2,6 +2,7 @@ const {
   Kendaraan,
   Perbaikan,
   ProgresPerbaikan,
+  Transaksi,
   sequelize,
 } = require('../db/models');
 const {
@@ -39,11 +40,18 @@ async function getAllPerbaikan(req, res) {
           'total_progres',
         ],
       ],
-      include: {
-        model: Kendaraan,
-        as: 'kendaraan',
-        attributes: ['id', 'no_plat', 'merek'],
-      },
+      include: [
+        {
+          model: Kendaraan,
+          as: 'kendaraan',
+          attributes: ['id', 'no_plat', 'merek'],
+        },
+        {
+          model: Transaksi,
+          as: 'transaksi',
+          attributes: ['id', 'order_id', 'gross_amount', 'nama'],
+        },
+      ],
       limit: 100,
       order: [['createdAt', 'DESC']],
     });
