@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       nama: DataTypes.STRING,
       no_telp: DataTypes.STRING,
       email: DataTypes.STRING,
+      alamat: DataTypes.TEXT,
       response_midtrans: DataTypes.TEXT,
     },
     {

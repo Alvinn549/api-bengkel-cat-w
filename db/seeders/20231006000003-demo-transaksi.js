@@ -26,6 +26,12 @@ module.exports = {
         nama: faker.person.fullName(),
         no_telp: faker.phone.number(),
         email: faker.internet.email(),
+        alamat:
+          faker.location.street() +
+          ', ' +
+          faker.location.city() +
+          ', ' +
+          faker.location.country(),
         response_midtrans: faker.datatype.json(),
         createdAt: new Date(),
         updatedAt: new Date(),

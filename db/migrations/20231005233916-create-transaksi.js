@@ -40,6 +40,9 @@ module.exports = {
       email: {
         type: Sequelize.STRING,
       },
+      alamat: {
+        type: Sequelize.TEXT,
+      },
       response_midtrans: {
         type: Sequelize.TEXT,
       },
