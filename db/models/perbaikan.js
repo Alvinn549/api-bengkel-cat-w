@@ -23,6 +23,16 @@ module.exports = (sequelize, DataTypes) => {
         as: 'progres_perbaikan',
         onDelete: 'CASCADE',
       });
+
+      // Has Many
+      Perbaikan.hasMany(models.Transaksi, {
+        foreignKey: {
+          name: 'perbaikan_id',
+          allowNull: false,
+        },
+        as: 'transaksi',
+        onDelete: 'CASCADE',
+      });
     }
   }
   Perbaikan.init(
