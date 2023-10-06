@@ -1,9 +1,19 @@
 const midtransClient = require('midtrans-client');
 const midtransConfig = require('../config/midtransConfig');
 
-function processTransaction(gross_amount, order_id, tipe_bank) {
+function processTransaction(
+  order_id,
+  gross_amount,
+  tipe_bank,
+  nama,
+  no_telp,
+  email,
+  alamat
+) {
   return new Promise((resolve, reject) => {
-    let core = new midtransClient.CoreApi(midtransConfig);
+    const full_name = nama.split(' ');
+    const firstName = full_name[0];
+    const lastName = full_name[full_name.length - 1];
 
     let parameter = {
       payment_type: 'bank_transfer',
@@ -14,7 +24,22 @@ function processTransaction(gross_amount, order_id, tipe_bank) {
       bank_transfer: {
         bank: tipe_bank,
       },
+      customer_details: {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone: no_telp,
+        billing_address: {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone: no_telp,
+          address: alamat,
+        },
+      },
     };
+
+    let core = new midtransClient.CoreApi(midtransConfig);
 
     core
       .charge(parameter)

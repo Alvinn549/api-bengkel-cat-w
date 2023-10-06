@@ -7,6 +7,7 @@ const transaksiValidationSchema = Joi.object({
   nama: Joi.string().required(),
   no_telp: Joi.string().required(),
   email: Joi.string().required(),
+  alamat: Joi.string().required(),
 });
 
 module.exports = { transaksiValidationSchema };

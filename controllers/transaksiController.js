@@ -13,8 +13,15 @@ async function index(req, res) {
 
 async function storeTransaksi(req, res) {
   try {
-    const { perbaikan_id, gross_amount, tipe_bank, nama, no_telp, email } =
-      req.body;
+    const {
+      perbaikan_id,
+      gross_amount,
+      tipe_bank,
+      nama,
+      no_telp,
+      email,
+      alamat,
+    } = req.body;
 
     // Validate the request body using a validation schema
     const { error } = transaksiValidationSchema.validate({
@@ -24,6 +31,7 @@ async function storeTransaksi(req, res) {
       nama,
       no_telp,
       email,
+      alamat,
     });
 
     if (error) {
@@ -35,9 +43,13 @@ async function storeTransaksi(req, res) {
 
     try {
       const response_midtrans = await processTransaction(
-        gross_amount,
         order_id,
-        tipe_bank
+        gross_amount,
+        tipe_bank,
+        nama,
+        no_telp,
+        email,
+        alamat
       );
       var status = response_midtrans.transaction_status;
     } catch (error) {
