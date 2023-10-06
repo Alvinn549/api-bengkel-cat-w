@@ -49,7 +49,6 @@ async function getAllPerbaikan(req, res) {
         {
           model: Transaksi,
           as: 'transaksi',
-          attributes: ['id', 'order_id', 'gross_amount', 'nama'],
         },
       ],
       limit: 100,
