@@ -17,15 +17,14 @@ module.exports = (sequelize, DataTypes) => {
   Transaksi.init(
     {
       perbaikan_id: DataTypes.UUID,
-      order_id: DataTypes.INTEGER,
-      gross_amount: DataTypes.STRING,
+      order_id: DataTypes.STRING,
+      gross_amount: DataTypes.DECIMAL(10, 0),
       tipe_bank: DataTypes.STRING,
       status: DataTypes.STRING,
       nama: DataTypes.STRING,
       no_telp: DataTypes.STRING,
       email: DataTypes.STRING,
       alamat: DataTypes.TEXT,
-      response_midtrans: DataTypes.JSONB,
     },
     {
       sequelize,

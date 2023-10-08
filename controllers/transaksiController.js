@@ -68,7 +68,6 @@ async function storeTransaksi(req, res) {
           alamat,
           no_telp,
           email,
-          response_midtrans: JSON.stringify(response_midtrans), // Store as a JSON string
         });
 
         return res.status(201).json({

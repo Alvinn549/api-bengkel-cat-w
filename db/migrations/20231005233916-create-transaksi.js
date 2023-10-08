@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       gross_amount: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL(10, 0),
       },
       tipe_bank: {
         type: Sequelize.STRING,
@@ -42,9 +42,6 @@ module.exports = {
       },
       alamat: {
         type: Sequelize.TEXT,
-      },
-      response_midtrans: {
-        type: Sequelize.JSONB,
       },
       createdAt: {
         allowNull: false,

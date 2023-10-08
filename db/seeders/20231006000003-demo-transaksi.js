@@ -32,7 +32,6 @@ module.exports = {
           faker.location.city() +
           ', ' +
           faker.location.country(),
-        response_midtrans: faker.datatype.json(),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
