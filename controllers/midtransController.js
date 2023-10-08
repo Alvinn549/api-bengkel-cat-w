@@ -2,8 +2,6 @@ const midtransClient = require('midtrans-client');
 const midtransConfig = require('../config/midtransConfig');
 const { Transaksi } = require('../db/models');
 
-const crypto = require('crypto');
-
 function processTransaction(
   order_id,
   gross_amount,
