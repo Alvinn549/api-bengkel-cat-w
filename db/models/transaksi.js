@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       no_telp: DataTypes.STRING,
       email: DataTypes.STRING,
       alamat: DataTypes.TEXT,
-      response_midtrans: DataTypes.TEXT,
+      response_midtrans: DataTypes.JSONB,
     },
     {
       sequelize,

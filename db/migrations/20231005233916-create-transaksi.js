@@ -44,7 +44,7 @@ module.exports = {
         type: Sequelize.TEXT,
       },
       response_midtrans: {
-        type: Sequelize.TEXT,
+        type: Sequelize.JSONB,
       },
       createdAt: {
         allowNull: false,
