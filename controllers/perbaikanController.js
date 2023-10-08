@@ -83,6 +83,10 @@ async function getPerbaikanById(req, res) {
           attributes: ['id', 'no_plat', 'merek'],
         },
         {
+          model: Transaksi,
+          as: 'transaksi',
+        },
+        {
           model: ProgresPerbaikan,
           as: 'progres_perbaikan',
           attributes: ['id'],
