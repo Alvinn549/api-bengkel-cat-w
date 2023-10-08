@@ -13,6 +13,7 @@ const kendaraanRoutes = require('./kendaraanRoutes');
 const perbaikanRoutes = require('./perbaikanRoutes');
 const progresPerbaikanRoutes = require('./progresPerbaikanRoutes');
 const transaksiRoutes = require('./transaksiRoutes');
+const midtransRoutes = require('./midtransRoutes');
 
 const router = express.Router();
 
@@ -50,6 +51,9 @@ router.use('/api/perbaikan', verifyToken, isAdmin, perbaikanRoutes);
 
 // ? /api/transaksi
 router.use('/api/transaksi', verifyToken, isAdmin, transaksiRoutes);
+
+// ? /api/midtrans
+router.use('/api/midtrans', midtransRoutes);
 
 // ? /api/progres-perbaikan
 router.use(

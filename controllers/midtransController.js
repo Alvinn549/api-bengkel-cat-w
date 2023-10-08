@@ -1,5 +1,8 @@
 const midtransClient = require('midtrans-client');
 const midtransConfig = require('../config/midtransConfig');
+const { Transaksi } = require('../db/models');
+
+const crypto = require('crypto');
 
 function processTransaction(
   order_id,
@@ -57,6 +60,79 @@ function processTransaction(
   });
 }
 
+async function midtransCallback(req, res) {
+  try {
+    let apiClient = new midtransClient.CoreApi(midtransConfig);
+
+    apiClient.transaction
+      .notification(req.body)
+      .then(async (statusResponse) => {
+        let id = statusResponse.transaction_id;
+
+        const transaksi = await Transaksi.findByPk(id);
+
+        if (!transaksi) {
+          return res
+            .status(404)
+            .json({ message: 'Transaksi tidak ditemukan!' });
+        }
+
+        let orderId = statusResponse.order_id;
+        let transactionStatus = statusResponse.transaction_status;
+        let fraudStatus = statusResponse.fraud_status;
+
+        console.log(
+          `Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`
+        );
+
+        if (transactionStatus == 'capture') {
+          if (fraudStatus == 'accept') {
+            // set transaction status on your database to 'success'
+            await transaksi.update({
+              status: 'success',
+            });
+
+            // and response with 200 OK
+            return res.sendStatus(200);
+          }
+        } else if (transactionStatus == 'settlement') {
+          // TODO set transaction status on your database to 'success'
+          await transaksi.update({
+            status: 'success',
+          });
+
+          // and response with 200 OK
+          return res.sendStatus(200);
+        } else if (
+          transactionStatus == 'cancel' ||
+          transactionStatus == 'deny' ||
+          transactionStatus == 'expire'
+        ) {
+          // TODO set transaction status on your database to 'failure'
+          await transaksi.update({
+            status: 'failure',
+          });
+
+          // and response with 200 OK
+          return res.sendStatus(200);
+        } else if (transactionStatus == 'pending') {
+          // TODO set transaction status on your database to 'pending' / waiting payment
+          await transaksi.update({
+            status: 'pending',
+          });
+
+          // and response with 200 OK
+          return res.sendStatus(200);
+        }
+      });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
+  }
+}
 module.exports = {
   processTransaction,
+  midtransCallback,
 };
