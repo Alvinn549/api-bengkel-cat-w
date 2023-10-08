@@ -65,6 +65,7 @@ async function storeTransaksi(req, res) {
           tipe_bank,
           status,
           nama,
+          alamat,
           no_telp,
           email,
           response_midtrans: JSON.stringify(response_midtrans), // Store as a JSON string
