@@ -2,17 +2,26 @@
 
 const { faker } = require('@faker-js/faker/locale/id_ID');
 const { Perbaikan } = require('../models');
+const { User } = require('../models');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
     const perbaikans = await Perbaikan.findAll({
       attributes: ['id'],
     });
+    const users = await User.findAll({
+      attributes: ['id'],
+    });
+
+    const randomUserId = faker.helpers.arrayElement(
+      users.map((user) => user.id)
+    );
 
     const fakeTransaksi = perbaikans.map((perbaikan) => {
       return {
         id: faker.string.uuid(),
         perbaikan_id: perbaikan.id,
+        user_id: randomUserId,
         order_id: faker.string.alpha(6),
         gross_amount: faker.commerce.price({ min: 500, dec: 0 }),
         tipe_bank: faker.helpers.arrayElement(['bni', 'bca', 'bri']),

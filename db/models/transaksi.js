@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Transaksi.init(
     {
       perbaikan_id: DataTypes.UUID,
+      user_id: DataTypes.UUID,
       order_id: DataTypes.STRING,
       gross_amount: DataTypes.DECIMAL(10, 0),
       tipe_bank: DataTypes.STRING,

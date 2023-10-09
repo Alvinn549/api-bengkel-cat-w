@@ -19,6 +19,16 @@ module.exports = {
           onUpdate: 'CASCADE',
         },
       },
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'Users',
+          key: 'id',
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
+        },
+      },
       order_id: {
         type: Sequelize.STRING,
       },

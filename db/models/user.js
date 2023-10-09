@@ -4,13 +4,23 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // Has Many
+      // Has Many Kendaraan
       User.hasMany(models.Kendaraan, {
         foreignKey: {
           name: 'user_id',
           allowNull: false,
         },
         as: 'kendaraan',
+        onDelete: 'CASCADE',
+      });
+
+      // Has Many Transaksi
+      User.hasMany(models.Transaksi, {
+        foreignKey: {
+          name: 'user_id',
+          allowNull: false,
+        },
+        as: 'transaksi',
         onDelete: 'CASCADE',
       });
 

@@ -15,6 +15,7 @@ async function storeTransaksi(req, res) {
   try {
     const {
       perbaikan_id,
+      user_id,
       gross_amount,
       tipe_bank,
       nama,
@@ -26,6 +27,7 @@ async function storeTransaksi(req, res) {
     // Validate the request body using a validation schema
     const { error } = transaksiValidationSchema.validate({
       perbaikan_id,
+      user_id,
       gross_amount,
       tipe_bank,
       nama,
@@ -41,7 +43,7 @@ async function storeTransaksi(req, res) {
 
     var order_id = randomstring.generate(8);
     let response_midtrans;
-    let retryCount = 3; // Set the maximum number of retries if
+    let retryCount = 6; // Set the maximum number of retries if
 
     while (retryCount > 0) {
       try {
@@ -60,6 +62,7 @@ async function storeTransaksi(req, res) {
         const newTransaksi = await Transaksi.create({
           id: response_midtrans.transaction_id,
           perbaikan_id,
+          user_id,
           order_id,
           gross_amount,
           tipe_bank,
