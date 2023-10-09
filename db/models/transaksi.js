@@ -12,6 +12,15 @@ module.exports = (sequelize, DataTypes) => {
         as: 'perbaikan',
         onDelete: 'CASCADE',
       });
+
+      Transaksi.belongsTo(models.User, {
+        foreignKey: {
+          name: 'user_id',
+          allowNull: false,
+        },
+        as: 'user',
+        onDelete: 'CASCADE',
+      });
     }
   }
   Transaksi.init(
