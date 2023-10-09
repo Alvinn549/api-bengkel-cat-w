@@ -7,12 +7,15 @@ const fileUpload = require('express-fileupload');
 require('dotenv').config();
 
 const app = express();
+
 const port = process.env.PORT;
+const hostname =
+  process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0';
 
 app.disable('x-powered-by');
 
 app.use((req, res, next) => {
-  res.setHeader('X-Powered-By', 'Blood, Sweat, and Tears ');
+  res.setHeader('X-Powered-By', 'Shheeesshh !');
   next();
 });
 
@@ -35,6 +38,6 @@ app.use(fileUpload());
 
 app.use(routes);
 
-app.listen(port, () => {
-  console.log(`Server berjalan pada http://localhost:${port}`);
+app.listen(port, hostname, () => {
+  console.log(`Server berjalan pada http://${hostname}:${port}`);
 });
