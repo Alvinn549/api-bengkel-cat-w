@@ -1,8 +1,10 @@
-const { Transaksi } = require('../db/models');
+const { Transaksi, Perbaikan, User } = require('../db/models');
 const { processTransaction } = require('./midtransController');
 const {
   transaksiValidationSchema,
 } = require('../validator/transaksiValidator');
+const { validate: isUUID } = require('uuid');
+
 const randomstring = require('randomstring');
 
 async function index(req, res) {
@@ -101,8 +103,33 @@ async function storeTransaksi(req, res) {
   }
 }
 
-async function getTransaksiById() {
+async function getTransaksiById(req, res) {
   try {
+    const { id } = req.params;
+
+    // Validate the id as a UUID
+    if (!isUUID(id, 4)) {
+      return res.status(400).json({ message: 'Invalid transaki ID format!' });
+    }
+
+    const transaksi = await Transaksi.findByPk(id, {
+      include: [
+        {
+          model: Perbaikan,
+          as: 'perbaikan',
+        },
+        {
+          model: User,
+          as: 'user',
+        },
+      ],
+    });
+
+    if (!transaksi) {
+      return res.status(404).json({ message: 'Transaksi tidak ditemukan!' });
+    }
+
+    return res.status(200).json(transaksi);
   } catch (error) {
     console.error(error);
     return res
