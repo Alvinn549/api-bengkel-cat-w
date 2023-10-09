@@ -1,5 +1,5 @@
 const midtransClient = require('midtrans-client');
-const midtransConfig = require('../config/midtransConfig');
+const { APP_CONFIG } = require('../config/midtransConfig');
 const { Transaksi } = require('../db/models');
 
 function processTransaction(
@@ -40,7 +40,7 @@ function processTransaction(
       },
     };
 
-    let core = new midtransClient.CoreApi(midtransConfig);
+    let core = new midtransClient.CoreApi(APP_CONFIG);
 
     core
       .charge(parameter)

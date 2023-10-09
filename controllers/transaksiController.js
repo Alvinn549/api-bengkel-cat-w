@@ -4,7 +4,6 @@ const {
   transaksiValidationSchema,
 } = require('../validator/transaksiValidator');
 const { validate: isUUID } = require('uuid');
-
 const randomstring = require('randomstring');
 
 async function index(req, res) {
