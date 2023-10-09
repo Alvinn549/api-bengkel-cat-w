@@ -60,7 +60,7 @@ function processTransaction(
 
 async function midtransCallback(req, res) {
   try {
-    let apiClient = new midtransClient.CoreApi(midtransConfig);
+    let apiClient = new midtransClient.CoreApi(APP_CONFIG);
 
     apiClient.transaction
       .notification(req.body)
