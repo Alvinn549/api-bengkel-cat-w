@@ -101,7 +101,18 @@ async function storeTransaksi(req, res) {
   }
 }
 
+async function getTransaksiById() {
+  try {
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
+  }
+}
+
 module.exports = {
   index,
   storeTransaksi,
+  getTransaksiById,
 };
