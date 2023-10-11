@@ -1,0 +1,25 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": "airbnb-base",
+  "overrides": [],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "rules": {
+    "no-console": "off",
+    "camelcase": "off",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ForInStatement"
+      }
+    ],
+
+    "no-await-in-loop": "off"
+  }
+}
