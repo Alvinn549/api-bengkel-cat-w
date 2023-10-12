@@ -1,6 +1,6 @@
 const express = require('express');
 const { registerUser } = require('../controllers/registerController');
-const { login, logout } = require('../controllers/authentication');
+const { login, logout } = require('../controllers/authenticationController');
 const { refreshToken } = require('../controllers/refreshTokenController');
 const { verifyToken } = require('../middleware/verifyToken');
 const { isAdmin } = require('../middleware/isAdmin');
@@ -60,7 +60,7 @@ router.use(
   '/api/progres-perbaikan',
   verifyToken,
   isAdmin,
-  progresPerbaikanRoutes
+  progresPerbaikanRoutes,
 );
 
 module.exports = router;
