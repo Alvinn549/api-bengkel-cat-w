@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
-const { sign } = require('jsonwebtoken');
+const { sign: jwtSign } = require('jsonwebtoken');
 const { User } = require('../db/models');
 
 // Function to generate a JWT token with a payload and secret key
 function generateToken(payload, secret_key) {
-  return sign(payload, secret_key, {
+  return jwtSign(payload, secret_key, {
     expiresIn: '1d',
   });
 }
