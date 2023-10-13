@@ -1,17 +1,17 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
 
     if (token == null) {
-      return res.status(403).json({ message: 'Forbidden' });
+      return res.status(403).json({ message: "Forbidden" });
     }
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
       if (err) {
-        return res.status(403).json({ error: 'Forbidden' });
+        return res.status(403).json({ error: "Forbidden" });
       }
       req.email = decoded.email;
       next();
@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 };
 

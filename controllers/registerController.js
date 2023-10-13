@@ -1,11 +1,9 @@
-const { User, UserActivation } = require('../db/models');
-const bcrypt = require('bcrypt');
-const { registerValidationSchema } = require('../validator/registerValidator');
-const { v4: uuidv4 } = require('uuid');
-const {
-  sendVerificationEmail,
-} = require('../controllers/emailVerificationController');
-const randomstring = require('randomstring');
+const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
+const randomstring = require("randomstring");
+const { User, UserActivation } = require("../db/models");
+const { registerValidationSchema } = require("../validator/registerValidator");
+const { sendVerificationEmail } = require("./emailVerificationController");
 
 // Define a function to register a new user
 async function registerUser(req, res) {
@@ -42,21 +40,21 @@ async function registerUser(req, res) {
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: 'Email yang anda masukkan sudah terdaftar!' });
+        .json({ message: "Email yang anda masukkan sudah terdaftar!" });
     }
 
     // Generate a salt and hash the user's password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create a new user in the database with a unique ID, hashed password, and 'isActive' set to 'false'
+    // Create a new user
     const newUser = await User.create({
       id: uuidv4(),
       nama,
       no_telp,
       alamat,
       jenis_k,
-      role: 'pelanggan',
+      role: "pelanggan",
       email,
       password: hashedPassword,
       isActive: false,
@@ -68,7 +66,7 @@ async function registerUser(req, res) {
     const verificationCode = randomstring.generate(6);
     const hashedVerificationCode = await bcrypt.hash(verificationCode, salt);
 
-    // Create a new UserActivation record with the user's ID, email, hashed code, and expiration time (30 minutes from now)
+    // Create a new UserActivation record
     await UserActivation.create({
       user_id: newUser.id,
       email: newUser.email,
@@ -79,22 +77,22 @@ async function registerUser(req, res) {
     // Send a verification email with the verification code
     try {
       sendVerificationEmail(newUser.email, verificationCode);
-    } catch (error) {
-      console.error(error);
+    } catch (errorSendVerification) {
+      console.error(errorSendVerification);
       return res
         .status(500)
-        .json({ error: 'Internal server error', message: error.message });
+        .json({ error: "Internal server error", message: error.message });
     }
 
     return res.status(201).json({
-      message: 'Register berhasil!',
+      message: "Register berhasil!",
       id: newUser.id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 

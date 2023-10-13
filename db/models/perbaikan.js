@@ -1,5 +1,4 @@
-'use strict';
-const { Model } = require('sequelize');
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Perbaikan extends Model {
@@ -7,31 +6,31 @@ module.exports = (sequelize, DataTypes) => {
       // Belongs to
       Perbaikan.belongsTo(models.Kendaraan, {
         foreignKey: {
-          name: 'kendaraan_id',
+          name: "kendaraan_id",
           allowNull: false,
         },
-        as: 'kendaraan',
-        onDelete: 'CASCADE',
+        as: "kendaraan",
+        onDelete: "CASCADE",
       });
 
       // Has Many
       Perbaikan.hasMany(models.ProgresPerbaikan, {
         foreignKey: {
-          name: 'perbaikan_id',
+          name: "perbaikan_id",
           allowNull: false,
         },
-        as: 'progres_perbaikan',
-        onDelete: 'CASCADE',
+        as: "progres_perbaikan",
+        onDelete: "CASCADE",
       });
 
       // Has Many
       Perbaikan.hasMany(models.Transaksi, {
         foreignKey: {
-          name: 'perbaikan_id',
+          name: "perbaikan_id",
           allowNull: false,
         },
-        as: 'transaksi',
-        onDelete: 'CASCADE',
+        as: "transaksi",
+        onDelete: "CASCADE",
       });
     }
   }
@@ -50,8 +49,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'Perbaikan',
-    }
+      modelName: "Perbaikan",
+    },
   );
   return Perbaikan;
 };

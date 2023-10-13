@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const APP_CONFIG = {
   isProduction: false,
@@ -7,8 +7,8 @@ const APP_CONFIG = {
 };
 
 const PAYMENT_CONFIG = {
-  allowed_payment_type: 'bank_transfer',
-  allowed_bank: ['bni', 'bca', 'bri'],
+  allowed_payment_type: "bank_transfer",
+  allowed_bank: ["bni", "bca", "bri"],
 };
 
 module.exports = {

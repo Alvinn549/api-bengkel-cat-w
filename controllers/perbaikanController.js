@@ -1,18 +1,15 @@
+const { v4: uuidv4, validate: isUUID } = require("uuid");
 const {
   Kendaraan,
   Perbaikan,
   ProgresPerbaikan,
   Transaksi,
   sequelize,
-} = require('../db/models');
+} = require("../db/models");
 const {
   perbaikanValidationSchema,
-} = require('../validator/perbaikanValidator');
-const { v4: uuidv4, validate: isUUID } = require('uuid');
-const {
-  imageFileUpload,
-  deleteFile,
-} = require('../controllers/fileUploadController');
+} = require("../validator/perbaikanValidator");
+const { imageFileUpload, deleteFile } = require("./fileUploadController");
 
 // Get all perbaikan
 async function getAllPerbaikan(req, res) {
@@ -20,39 +17,39 @@ async function getAllPerbaikan(req, res) {
     // Fetch all Perbaikan records with specified attributes and associations
     const perbaikans = await Perbaikan.findAll({
       attributes: [
-        'id',
-        'kendaraan_id',
-        'keterangan',
-        'tanggal_masuk',
-        'tanggal_keluar',
-        'foto',
-        'foto_url',
-        'estimasi_biaya',
-        'status',
-        'createdAt',
-        'updatedAt',
+        "id",
+        "kendaraan_id",
+        "keterangan",
+        "tanggal_masuk",
+        "tanggal_keluar",
+        "foto",
+        "foto_url",
+        "estimasi_biaya",
+        "status",
+        "createdAt",
+        "updatedAt",
         [
           sequelize.literal(`(
             SELECT COUNT(*)
             FROM "ProgresPerbaikans"
             WHERE "ProgresPerbaikans"."perbaikan_id" = "Perbaikan"."id"
           )`),
-          'total_progres',
+          "total_progres",
         ],
       ],
       include: [
         {
           model: Kendaraan,
-          as: 'kendaraan',
-          attributes: ['id', 'no_plat', 'merek'],
+          as: "kendaraan",
+          attributes: ["id", "no_plat", "merek"],
         },
         {
           model: Transaksi,
-          as: 'transaksi',
+          as: "transaksi",
         },
       ],
       limit: 100,
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
     });
 
     return res.status(200).json(perbaikans);
@@ -60,7 +57,7 @@ async function getAllPerbaikan(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 
@@ -71,7 +68,7 @@ async function getPerbaikanById(req, res) {
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid perbaikan ID format!' });
+      return res.status(400).json({ message: "Invalid perbaikan ID format!" });
     }
 
     // Find the perbaikan by its ID, including associated Kendaraan and ProgresPerbaikan records
@@ -79,23 +76,23 @@ async function getPerbaikanById(req, res) {
       include: [
         {
           model: Kendaraan,
-          as: 'kendaraan',
-          attributes: ['id', 'no_plat', 'merek'],
+          as: "kendaraan",
+          attributes: ["id", "no_plat", "merek"],
         },
         {
           model: Transaksi,
-          as: 'transaksi',
+          as: "transaksi",
         },
         {
           model: ProgresPerbaikan,
-          as: 'progres_perbaikan',
-          attributes: ['id'],
+          as: "progres_perbaikan",
+          attributes: ["id"],
         },
       ],
     });
 
     if (!perbaikan) {
-      return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
+      return res.status(404).json({ message: "Perbaikan tidak ditemukan!" });
     }
 
     return res.status(200).json(perbaikan);
@@ -103,7 +100,7 @@ async function getPerbaikanById(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -114,17 +111,17 @@ async function getPerbaikanByKendaraan(req, res) {
 
     // Validate the kendaraan_id as a UUID
     if (!isUUID(kendaraan_id, 4)) {
-      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+      return res.status(400).json({ message: "Invalid kendaraan ID format!" });
     }
 
-    // Find all perbaikans associated with the specified kendaraan_id, ordered by createdAt in descending order
+    // Find all perbaikans associated
     const perbaikans = await Perbaikan.findAll({
-      where: { kendaraan_id: kendaraan_id },
-      order: [['createdAt', 'DESC']],
+      where: { kendaraan_id },
+      order: [["createdAt", "DESC"]],
     });
 
     if (!perbaikans) {
-      return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
+      return res.status(404).json({ message: "Perbaikan tidak ditemukan!" });
     }
 
     return res.status(200).json(perbaikans);
@@ -132,7 +129,7 @@ async function getPerbaikanByKendaraan(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -140,6 +137,8 @@ async function getPerbaikanByKendaraan(req, res) {
 async function storePerbaikan(req, res) {
   try {
     const { kendaraan_id, keterangan, estimasi_biaya } = req.body;
+    let foto;
+    let foto_url;
 
     // Validate the request data using perbaikanValidationSchema
     const { error } = perbaikanValidationSchema.validate({
@@ -157,25 +156,25 @@ async function storePerbaikan(req, res) {
     if (!req.files || !req.files.foto) {
       return res
         .status(400)
-        .json({ message: 'Foto perbaikan tidak boleh kosong!' });
+        .json({ message: "Foto perbaikan tidak boleh kosong!" });
     }
 
     try {
       const image = req.files.foto;
-      const destination = '/upload/images/perbaikan/';
+      const destination = "/upload/images/perbaikan/";
 
       // Upload the image and get the resulting fileName and fileUrl
       const { fileName, fileUrl } = await imageFileUpload(
         req,
         image,
-        destination
+        destination,
       );
 
       foto = fileName;
       foto_url = fileUrl;
     } catch (uploadError) {
       return res.status(400).json({
-        message: 'Error uploading the image!',
+        message: "Error uploading the image!",
         error: uploadError.message,
       });
     }
@@ -189,18 +188,18 @@ async function storePerbaikan(req, res) {
       foto,
       foto_url,
       estimasi_biaya,
-      status: 'Baru Masuk',
+      status: "Baru Masuk",
     });
 
     return res.status(201).json({
-      message: 'Perbaikan berhasil disimpan!',
+      message: "Perbaikan berhasil disimpan!",
       id: newPerbaikan.id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -211,14 +210,14 @@ async function updatePerbaikan(req, res) {
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid perbaikan ID format!' });
+      return res.status(400).json({ message: "Invalid perbaikan ID format!" });
     }
 
     // Find the perbaikan record by ID
     const perbaikan = await Perbaikan.findByPk(id);
 
     if (!perbaikan) {
-      return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
+      return res.status(404).json({ message: "Perbaikan tidak ditemukan!" });
     }
 
     const { kendaraan_id, keterangan, estimasi_biaya, tanggal_keluar, status } =
@@ -242,36 +241,31 @@ async function updatePerbaikan(req, res) {
       return res.status(400).json({ message: errorMessage });
     }
 
-    var foto = perbaikan.foto;
-    var foto_url = perbaikan.foto_url;
+    let { foto } = perbaikan;
+    let { foto_url } = perbaikan;
 
     // Check if a new foto is provided in the request
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
-        const destination = '/upload/images/perbaikan/';
+        const destination = "/upload/images/perbaikan/";
 
-        // Upload the new image and get the resulting fileName and fileUrl
-        const { fileName, fileUrl } = await imageFileUpload(
-          req,
-          image,
-          destination
-        );
+        // Upload the new image and get file details (fileName and fileUrl)
+        const { fileName: newFileName, fileUrl: newFileUrl } =
+          await imageFileUpload(req, image, destination);
 
         // If the new fileName is different from the existing foto, delete the old image
-        if (foto !== fileName) {
+        if (foto !== newFileName) {
           if (perbaikan.foto) {
-            const destination = '/upload/images/perbaikan/';
-            const fileName = perbaikan.foto;
-            await deleteFile(destination, fileName);
+            await deleteFile(destination, foto);
           }
         }
 
-        foto = fileName;
-        foto_url = fileUrl;
+        foto = newFileName;
+        foto_url = newFileUrl;
       } catch (uploadError) {
         return res.status(400).json({
-          message: 'Error uploading the image!',
+          message: "Error uploading the image!",
           error: uploadError.message,
         });
       }
@@ -290,35 +284,34 @@ async function updatePerbaikan(req, res) {
 
     return res
       .status(200)
-      .json({ message: 'Perbaikan berhasil diperbarui!', id: perbaikan.id });
+      .json({ message: "Perbaikan berhasil diperbarui!", id: perbaikan.id });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
-// Delete perbaikan
 async function destroyPerbaikan(req, res) {
   try {
     const { id } = req.params;
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid perbaikan ID format!' });
+      return res.status(400).json({ message: "Invalid perbaikan ID format!" });
     }
 
     // Find the perbaikan record by ID
     const perbaikan = await Perbaikan.findByPk(id);
 
     if (!perbaikan) {
-      return res.status(404).json({ message: 'Perbaikan tidak ditemukan!' });
+      return res.status(404).json({ message: "Perbaikan tidak ditemukan!" });
     }
 
     // Delete the perbaikan image file
     if (perbaikan.foto) {
-      const destination = '/upload/images/perbaikan/';
+      const destination = "/upload/images/perbaikan/";
       const fileName = perbaikan.foto;
       await deleteFile(destination, fileName);
     }
@@ -331,7 +324,7 @@ async function destroyPerbaikan(req, res) {
     for (const progres of relatedProgresPerbaikan) {
       // Delete the progres perbaikan image, if it exists
       if (progres.foto) {
-        const progresImageDestination = '/upload/images/progres-perbaikan/';
+        const progresImageDestination = "/upload/images/progres-perbaikan/";
         const progresImageFileName = progres.foto;
         await deleteFile(progresImageDestination, progresImageFileName);
       }
@@ -343,14 +336,14 @@ async function destroyPerbaikan(req, res) {
     await perbaikan.destroy();
 
     return res.status(200).json({
-      message: 'Perbaikan berhasil dihapus!',
+      message: "Perbaikan berhasil dihapus!",
       id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 

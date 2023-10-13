@@ -1,5 +1,5 @@
-'use strict';
-const { Model } = require('sequelize');
+const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class UserActivation extends Model {
     /**
@@ -11,11 +11,11 @@ module.exports = (sequelize, DataTypes) => {
       // Belongs To
       UserActivation.belongsTo(models.User, {
         foreignKey: {
-          name: 'user_id',
+          name: "user_id",
           allowNull: false,
         },
-        as: 'user',
-        onDelete: 'CASCADE',
+        as: "user",
+        onDelete: "CASCADE",
       });
     }
   }
@@ -30,8 +30,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'UserActivation',
-    }
+      modelName: "UserActivation",
+    },
   );
   return UserActivation;
 };

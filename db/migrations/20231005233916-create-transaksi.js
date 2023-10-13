@@ -1,8 +1,7 @@
-'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Transaksis', {
+    await queryInterface.createTable("Transaksis", {
       id: {
         allowNull: false,
         primaryKey: true,
@@ -13,20 +12,20 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Perbaikans',
-          key: 'id',
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE',
+          model: "Perbaikans",
+          key: "id",
+          onDelete: "CASCADE",
+          onUpdate: "CASCADE",
         },
       },
       user_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'id',
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE',
+          model: "Users",
+          key: "id",
+          onDelete: "CASCADE",
+          onUpdate: "CASCADE",
         },
       },
       order_id: {
@@ -63,7 +62,7 @@ module.exports = {
       },
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Transaksis');
+  async down(queryInterface) {
+    await queryInterface.dropTable("Transaksis");
   },
 };

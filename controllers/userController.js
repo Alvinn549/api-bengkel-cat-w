@@ -1,17 +1,15 @@
+const { v4: uuidv4, validate: isUUID } = require("uuid");
+const bcrypt = require("bcrypt");
 const {
   User,
   Kendaraan,
   Perbaikan,
   ProgresPerbaikan,
+  Transaksi,
   UserActivation,
-} = require('../db/models');
-const { userValidationSchema } = require('../validator/userValidator');
-const { v4: uuidv4, validate: isUUID } = require('uuid');
-const {
-  imageFileUpload,
-  deleteFile,
-} = require('../controllers/fileUploadController');
-const bcrypt = require('bcrypt');
+} = require("../db/models");
+const { userValidationSchema } = require("../validator/userValidator");
+const { imageFileUpload, deleteFile } = require("./fileUploadController");
 
 // Get all users
 async function getAllUser(req, res) {
@@ -20,10 +18,10 @@ async function getAllUser(req, res) {
     const users = await User.findAll({
       include: {
         model: Kendaraan,
-        as: 'kendaraan',
-        attributes: ['id', 'no_plat', 'merek'],
+        as: "kendaraan",
+        attributes: ["id", "no_plat", "merek"],
       },
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
     });
 
     return res.status(200).json(users);
@@ -31,7 +29,7 @@ async function getAllUser(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 
@@ -42,7 +40,7 @@ async function getUserById(req, res) {
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid user ID format!' });
+      return res.status(400).json({ message: "Invalid user ID format!" });
     }
 
     // Find a user by ID, including related UserActivation and Kendaraan records
@@ -50,18 +48,18 @@ async function getUserById(req, res) {
       include: [
         {
           model: UserActivation,
-          as: 'activation',
+          as: "activation",
         },
         {
           model: Kendaraan,
-          as: 'kendaraan',
-          attributes: ['id', 'no_plat', 'merek'],
+          as: "kendaraan",
+          attributes: ["id", "no_plat", "merek"],
         },
       ],
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User tidak ditemukan!' });
+      return res.status(404).json({ message: "User tidak ditemukan!" });
     }
 
     return res.status(200).json(user);
@@ -69,7 +67,7 @@ async function getUserById(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 
@@ -77,8 +75,8 @@ async function getUserById(req, res) {
 async function storeUser(req, res) {
   try {
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
-    var foto = null;
-    var foto_url = null;
+    let foto = null;
+    let foto_url = null;
 
     // Validate user data using a validation schema
     const { error } = userValidationSchema.validate({
@@ -102,27 +100,27 @@ async function storeUser(req, res) {
     if (existingUser) {
       return res
         .status(409)
-        .json({ message: 'User dengan email ini sudah terdaftar!' });
+        .json({ message: "User dengan email ini sudah terdaftar!" });
     }
 
     // If the request contains a user photo, upload it to the server
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
-        const destination = '/upload/images/user/';
+        const destination = "/upload/images/user/";
 
         // Use a function (imageFileUpload) to upload and get the file information
         const { fileName, fileUrl } = await imageFileUpload(
           req,
           image,
-          destination
+          destination,
         );
 
         foto = fileName;
         foto_url = fileUrl;
       } catch (uploadError) {
         return res.status(400).json({
-          message: 'Error uploading the image!',
+          message: "Error uploading the image!",
           error: uploadError.message,
         });
       }
@@ -147,14 +145,14 @@ async function storeUser(req, res) {
     });
 
     return res.status(201).json({
-      message: 'User berhasil disimpan!',
+      message: "User berhasil disimpan!",
       id: newUser.id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -165,20 +163,17 @@ async function updateUser(req, res) {
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid user ID format!' });
+      return res.status(400).json({ message: "Invalid user ID format!" });
     }
 
     // Find the user by their ID
     const user = await User.findByPk(id);
 
     if (!user) {
-      return res.status(404).json({ message: 'User tidak ditemukan!' });
+      return res.status(404).json({ message: "User tidak ditemukan!" });
     }
 
     const { nama, no_telp, alamat, jenis_k, role, email, password } = req.body;
-
-    var foto = user.foto;
-    var foto_url = user.foto_url;
 
     // Validate user input using a validation schema
     const { error } = userValidationSchema.validate({
@@ -202,37 +197,36 @@ async function updateUser(req, res) {
     if (existingUser && existingUser.id !== user.id) {
       return res
         .status(409)
-        .json({ message: 'User dengan email ini sudah terdaftar!' });
+        .json({ message: "User dengan email ini sudah terdaftar!" });
     }
+
+    let { foto } = user;
+    let { foto_url } = user;
 
     // Handle file upload if a new photo is provided (similar to storeUser)
     if (req.files && req.files.foto) {
       try {
+        // Retrieve the 'foto' file from the request
         const image = req.files.foto;
-        const destination = '/upload/images/user/';
+        const destination = "/upload/images/user/";
 
         // Use a function (imageFileUpload) to upload and get the file information
-        const { fileName, fileUrl } = await imageFileUpload(
-          req,
-          image,
-          destination
-        );
+        const { fileName: newFileName, fileUrl: newFileUrl } =
+          await imageFileUpload(req, image, destination);
 
         // If the new photo name is different, delete the old photo file
-        if (foto !== fileName) {
+        // If the 'fileName' has changed, delete the old image (if it exists)
+        if (foto !== newFileName) {
           if (user.foto) {
-            const destination = '/upload/images/user/';
-            const fileName = user.foto;
-
-            await deleteFile(destination, fileName);
+            await deleteFile(destination, foto);
           }
         }
 
-        foto = fileName;
-        foto_url = fileUrl;
+        foto = newFileName;
+        foto_url = newFileUrl;
       } catch (uploadError) {
         return res.status(400).json({
-          message: 'Error uploading the image!',
+          message: "Error uploading the image!",
           error: uploadError.message,
         });
       }
@@ -256,14 +250,14 @@ async function updateUser(req, res) {
     });
 
     return res.status(200).json({
-      message: 'User berhasil diperbarui!',
+      message: "User berhasil diperbarui!",
       id: user.id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -274,19 +268,19 @@ async function destroyUser(req, res) {
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid user ID format!' });
+      return res.status(400).json({ message: "Invalid user ID format!" });
     }
 
     // Find the user by their ID
     const user = await User.findByPk(id);
 
     if (!user) {
-      return res.status(404).json({ message: 'User tidak ditemukan!' });
+      return res.status(404).json({ message: "User tidak ditemukan!" });
     }
 
     // If the user has a photo, delete it
     if (user.foto) {
-      const userImageDestination = '/upload/images/user/';
+      const userImageDestination = "/upload/images/user/";
       const userImageFileName = user.foto;
       await deleteFile(userImageDestination, userImageFileName);
     }
@@ -308,10 +302,15 @@ async function destroyUser(req, res) {
           where: { perbaikan_id: perbaikan.id },
         });
 
+        // Find all progres perbaikan records associated with the transaksi
+        const relatedTransaksi = await Transaksi.findAll({
+          where: { perbaikan_id: perbaikan.id },
+        });
+
         for (const progres of relatedProgresPerbaikan) {
           // Delete the progres perbaikan image, if it exists
           if (progres.foto) {
-            const progresImageDestination = '/upload/images/progres-perbaikan/';
+            const progresImageDestination = "/upload/images/progres-perbaikan/";
             const progresImageFileName = progres.foto;
             await deleteFile(progresImageDestination, progresImageFileName);
           }
@@ -319,9 +318,14 @@ async function destroyUser(req, res) {
           await progres.destroy();
         }
 
+        for (const transaksi of relatedTransaksi) {
+          // Delete the transaksi record
+          await transaksi.destroy();
+        }
+
         // Delete the perbaikan image, if it exists
         if (perbaikan.foto) {
-          const perbaikanImageDestination = '/upload/images/perbaikan/';
+          const perbaikanImageDestination = "/upload/images/perbaikan/";
           const perbaikanImageFileName = perbaikan.foto;
           await deleteFile(perbaikanImageDestination, perbaikanImageFileName);
         }
@@ -331,7 +335,7 @@ async function destroyUser(req, res) {
 
       // Delete the kendaraan image, if it exists
       if (kendaraan.foto) {
-        const kendaraanImageDestination = '/upload/images/kendaraan/';
+        const kendaraanImageDestination = "/upload/images/kendaraan/";
         const kendaraanImageFileName = kendaraan.foto;
         await deleteFile(kendaraanImageDestination, kendaraanImageFileName);
       }
@@ -348,14 +352,14 @@ async function destroyUser(req, res) {
     await user.destroy();
 
     return res.status(200).json({
-      message: 'User berhasil dihapus!',
+      message: "User berhasil dihapus!",
       id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 

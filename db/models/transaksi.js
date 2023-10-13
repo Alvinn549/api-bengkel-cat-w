@@ -1,25 +1,25 @@
-'use strict';
-const { Model } = require('sequelize');
+const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Transaksi extends Model {
     static associate(models) {
       // Belongs to
       Transaksi.belongsTo(models.Perbaikan, {
         foreignKey: {
-          name: 'perbaikan_id',
+          name: "perbaikan_id",
           allowNull: false,
         },
-        as: 'perbaikan',
-        onDelete: 'CASCADE',
+        as: "perbaikan",
+        onDelete: "CASCADE",
       });
 
       Transaksi.belongsTo(models.User, {
         foreignKey: {
-          name: 'user_id',
+          name: "user_id",
           allowNull: false,
         },
-        as: 'user',
-        onDelete: 'CASCADE',
+        as: "user",
+        onDelete: "CASCADE",
       });
     }
   }
@@ -38,8 +38,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'Transaksi',
-    }
+      modelName: "Transaksi",
+    },
   );
   return Transaksi;
 };

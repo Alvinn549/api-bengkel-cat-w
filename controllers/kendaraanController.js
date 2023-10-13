@@ -1,17 +1,15 @@
+const { v4: uuidv4, validate: isUUID } = require("uuid");
 const {
   User,
   Kendaraan,
   Perbaikan,
   ProgresPerbaikan,
-} = require('../db/models');
+  Transaksi,
+} = require("../db/models");
 const {
   kendaraanValidationSchema,
-} = require('../validator/kendaraanValidator');
-const { v4: uuidv4, validate: isUUID } = require('uuid');
-const {
-  imageFileUpload,
-  deleteFile,
-} = require('../controllers/fileUploadController');
+} = require("../validator/kendaraanValidator");
+const { imageFileUpload, deleteFile } = require("./fileUploadController");
 
 // Get all kendaraans
 async function getAllKendaraan(req, res) {
@@ -20,10 +18,10 @@ async function getAllKendaraan(req, res) {
     const kendaraans = await Kendaraan.findAll({
       include: {
         model: User,
-        as: 'pemilik',
-        attributes: ['id', 'nama', 'no_telp', 'alamat'],
+        as: "pemilik",
+        attributes: ["id", "nama", "no_telp", "alamat"],
       },
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
     });
 
     return res.status(200).json(kendaraans);
@@ -31,7 +29,7 @@ async function getAllKendaraan(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 
@@ -42,7 +40,7 @@ async function getKendaraanById(req, res) {
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+      return res.status(400).json({ message: "Invalid kendaraan ID format!" });
     }
 
     // Fetch a kendaraan by its ID, including related data like pemilik and perbaikan
@@ -50,19 +48,19 @@ async function getKendaraanById(req, res) {
       include: [
         {
           model: User,
-          as: 'pemilik',
-          attributes: ['id', 'nama', 'no_telp', 'alamat', 'role'],
+          as: "pemilik",
+          attributes: ["id", "nama", "no_telp", "alamat", "role"],
         },
         {
           model: Perbaikan,
-          as: 'perbaikan',
-          attributes: ['id'],
+          as: "perbaikan",
+          attributes: ["id"],
         },
       ],
     });
 
     if (!kendaraan) {
-      return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
+      return res.status(404).json({ message: "Kendaraan tidak ditemukan!" });
     }
 
     return res.status(200).json(kendaraan);
@@ -70,7 +68,7 @@ async function getKendaraanById(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -81,19 +79,19 @@ async function getKendaraanByOwner(req, res) {
 
     // Validate the user_id as a UUID
     if (!isUUID(user_id, 4)) {
-      return res.status(400).json({ message: 'Invalid user ID format!' });
+      return res.status(400).json({ message: "Invalid user ID format!" });
     }
 
-    // Find all kendaraan associated with the specified user_id, ordered by createdAt in descending order
+    // Find all kendaraan
     const kendaraan = await Kendaraan.findAll({
       where: {
-        user_id: user_id,
+        user_id,
       },
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
     });
 
     if (!kendaraan) {
-      return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
+      return res.status(404).json({ message: "Kendaraan tidak ditemukan!" });
     }
 
     return res.status(200).json(kendaraan);
@@ -101,7 +99,7 @@ async function getKendaraanByOwner(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -109,6 +107,8 @@ async function getKendaraanByOwner(req, res) {
 async function storeKendaraan(req, res) {
   try {
     const { user_id, no_plat, merek } = req.body;
+    let foto;
+    let foto_url;
 
     // Validate the incoming data using kendaraanValidationSchema
     const { error } = kendaraanValidationSchema.validate({
@@ -128,32 +128,32 @@ async function storeKendaraan(req, res) {
     if (existingKendaraan) {
       return res
         .status(409)
-        .json({ message: 'Kendaraan dengan No Plat ini sudah terdaftar!' });
+        .json({ message: "Kendaraan dengan No Plat ini sudah terdaftar!" });
     }
 
     // Check if the request includes a file named 'foto'
     if (!req.files || !req.files.foto) {
       return res
         .status(400)
-        .json({ message: 'Foto kendaraan tidak boleh kosong!' });
+        .json({ message: "Foto kendaraan tidak boleh kosong!" });
     }
 
     try {
       const image = req.files.foto;
-      const destination = '/upload/images/kendaraan/';
+      const destination = "/upload/images/kendaraan/";
 
       // Upload the image and get file details (fileName and fileUrl)
       const { fileName, fileUrl } = await imageFileUpload(
         req,
         image,
-        destination
+        destination,
       );
 
       foto = fileName;
       foto_url = fileUrl;
     } catch (uploadError) {
       return res.status(400).json({
-        message: 'Error uploading the image!',
+        message: "Error uploading the image!",
         error: uploadError.message,
       });
     }
@@ -169,14 +169,14 @@ async function storeKendaraan(req, res) {
     });
 
     return res.status(201).json({
-      message: 'Kendaraan berhasil disimpan!',
+      message: "Kendaraan berhasil disimpan!",
       id: newKendaraaan.id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
@@ -187,14 +187,14 @@ async function updateKendaraan(req, res) {
 
     // Validate the kendaraan_id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+      return res.status(400).json({ message: "Invalid kendaraan ID format!" });
     }
 
     // Find the kendaraan by ID
     const kendaraan = await Kendaraan.findByPk(id);
 
     if (!kendaraan) {
-      return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
+      return res.status(404).json({ message: "Kendaraan tidak ditemukan!" });
     }
 
     const { user_id, no_plat, merek } = req.body;
@@ -217,39 +217,34 @@ async function updateKendaraan(req, res) {
     if (existingKendaraan && existingKendaraan.id !== kendaraan.id) {
       return res
         .status(409)
-        .json({ message: 'Kendaraan dengan No Plat ini sudah terdaftar!' });
+        .json({ message: "Kendaraan dengan No Plat ini sudah terdaftar!" });
     }
 
-    var foto = kendaraan.foto;
-    var foto_url = kendaraan.foto_url;
+    let { foto } = kendaraan;
+    let { foto_url } = kendaraan;
 
     // Check if the request includes a file named 'foto'
     if (req.files && req.files.foto) {
       try {
         const image = req.files.foto;
-        const destination = '/upload/images/kendaraan/';
+        const destination = "/upload/images/kendaraan/";
 
         // Upload the new image and get file details (fileName and fileUrl)
-        const { fileName, fileUrl } = await imageFileUpload(
-          req,
-          image,
-          destination
-        );
+        const { fileName: newFileName, fileUrl: newFileUrl } =
+          await imageFileUpload(req, image, destination);
 
         // If the new image is different from the previous one, delete the old image
-        if (foto !== fileName) {
+        if (foto !== newFileName) {
           if (kendaraan.foto) {
-            const destination = '/upload/images/kendaraan/';
-            const fileName = kendaraan.foto;
-            await deleteFile(destination, fileName);
+            await deleteFile(destination, foto);
           }
         }
 
-        foto = fileName;
-        foto_url = fileUrl;
+        foto = newFileName;
+        foto_url = newFileUrl;
       } catch (uploadError) {
         return res.status(400).json({
-          message: 'Error uploading the image!',
+          message: "Error uploading the image!",
           error: uploadError.message,
         });
       }
@@ -266,35 +261,34 @@ async function updateKendaraan(req, res) {
 
     return res
       .status(200)
-      .json({ message: 'Kendaraan berhasil diperbarui!', id: kendaraan.id });
+      .json({ message: "Kendaraan berhasil diperbarui!", id: kendaraan.id });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 
-// Delete kendaraan
 async function destroyKendaraan(req, res) {
   try {
     const { id } = req.params;
 
     // Validate the kendaraan_id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid kendaraan ID format!' });
+      return res.status(400).json({ message: "Invalid kendaraan ID format!" });
     }
 
     // Find the kendaraan by its ID
     const kendaraan = await Kendaraan.findByPk(id);
 
     if (!kendaraan) {
-      return res.status(404).json({ message: 'Kendaraan tidak ditemukan!' });
+      return res.status(404).json({ message: "Kendaraan tidak ditemukan!" });
     }
 
     // Delete the kendaraan image file
     if (kendaraan.foto) {
-      const destination = '/upload/images/kendaraan/';
+      const destination = "/upload/images/kendaraan/";
       const fileName = kendaraan.foto;
       await deleteFile(destination, fileName);
     }
@@ -309,10 +303,15 @@ async function destroyKendaraan(req, res) {
         where: { perbaikan_id: perbaikan.id },
       });
 
+      // Find all progres perbaikan records associated with the perbaikan
+      const relatedTransaksi = await Transaksi.findAll({
+        where: { perbaikan_id: perbaikan.id },
+      });
+
       for (const progres of relatedProgresPerbaikan) {
         // Delete the progres perbaikan image, if it exists
         if (progres.foto) {
-          const progresImageDestination = '/upload/images/progres-perbaikan/';
+          const progresImageDestination = "/upload/images/progres-perbaikan/";
           const progresImageFileName = progres.foto;
           await deleteFile(progresImageDestination, progresImageFileName);
         }
@@ -320,9 +319,14 @@ async function destroyKendaraan(req, res) {
         await progres.destroy();
       }
 
+      for (const transaksi of relatedTransaksi) {
+        // Delete the transaksi record
+        await transaksi.destroy();
+      }
+
       // Delete the perbaikan image, if it exists
       if (perbaikan.foto) {
-        const perbaikanImageDestination = '/upload/images/perbaikan/';
+        const perbaikanImageDestination = "/upload/images/perbaikan/";
         const perbaikanImageFileName = perbaikan.foto;
         await deleteFile(perbaikanImageDestination, perbaikanImageFileName);
       }
@@ -334,14 +338,14 @@ async function destroyKendaraan(req, res) {
     await kendaraan.destroy();
 
     return res.status(200).json({
-      message: 'Kendaraan berhasil dihapus!',
+      message: "Kendaraan berhasil dihapus!",
       id,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error!', message: error.message });
+      .json({ error: "Internal server error!", message: error.message });
   }
 }
 

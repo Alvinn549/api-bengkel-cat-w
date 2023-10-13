@@ -1,12 +1,10 @@
-'use strict';
-
-const { faker } = require('@faker-js/faker/locale/id_ID');
-const { User } = require('../models');
+const { faker } = require("@faker-js/faker/locale/id_ID");
+const { User } = require("../models");
 
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up(queryInterface) {
     const users = await User.findAll({
-      attributes: ['id', 'email'],
+      attributes: ["id", "email"],
     });
 
     const fakeUserActivations = users.map((user) => {
@@ -20,10 +18,10 @@ module.exports = {
       };
     });
 
-    await queryInterface.bulkInsert('UserActivations', fakeUserActivations, {});
+    await queryInterface.bulkInsert("UserActivations", fakeUserActivations, {});
   },
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('UserActivations', null, {});
+  async down(queryInterface) {
+    await queryInterface.bulkDelete("UserActivations", null, {});
   },
 };

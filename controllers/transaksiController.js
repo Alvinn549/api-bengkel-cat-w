@@ -1,14 +1,14 @@
-const { Transaksi, Perbaikan, User } = require('../db/models');
-const { processTransaction } = require('./midtransController');
+const { validate: isUUID } = require("uuid");
+const randomstring = require("randomstring");
+const { Transaksi, Perbaikan, User } = require("../db/models");
+const { processTransaction } = require("./midtransController");
 const {
   transaksiValidationSchema,
-} = require('../validator/transaksiValidator');
-const { validate: isUUID } = require('uuid');
-const randomstring = require('randomstring');
+} = require("../validator/transaksiValidator");
 
 async function index(req, res) {
   return res.status(200).json({
-    message: 'INDEX TRANSAKSI',
+    message: "INDEX TRANSAKSI",
   });
 }
 
@@ -26,7 +26,7 @@ async function storeTransaksi(req, res) {
     } = req.body;
 
     // Validate the request body using a validation schema
-    const { error } = transaksiValidationSchema.validate({
+    const { error: validationError } = transaksiValidationSchema.validate({
       perbaikan_id,
       user_id,
       gross_amount,
@@ -37,12 +37,12 @@ async function storeTransaksi(req, res) {
       alamat,
     });
 
-    if (error) {
-      const errorMessage = error.details[0].message;
+    if (validationError) {
+      const errorMessage = validationError.details[0].message;
       return res.status(400).json({ message: errorMessage });
     }
 
-    var order_id = randomstring.generate(8);
+    const order_id = randomstring.generate(8);
     let response_midtrans;
     let retryCount = 6; // Set the maximum number of retries if
 
@@ -55,10 +55,10 @@ async function storeTransaksi(req, res) {
           nama,
           no_telp,
           email,
-          alamat
+          alamat,
         );
 
-        var status = response_midtrans.transaction_status;
+        const status = response_midtrans.transaction_status;
 
         const newTransaksi = await Transaksi.create({
           id: response_midtrans.transaction_id,
@@ -75,22 +75,24 @@ async function storeTransaksi(req, res) {
         });
 
         return res.status(201).json({
-          message: 'Transaksi berhasil disimpan!',
+          message: "Transaksi berhasil disimpan!",
           newTransaksi,
         });
       } catch (error) {
-        console.error('Error occurred:', error.message);
+        console.error("Error occurred:", error.message);
 
-        retryCount--;
+        retryCount -= 1;
 
         if (retryCount > 0) {
           console.log(`Retrying... (${retryCount} retries remaining)`);
 
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
+          await new Promise((resolve) => {
+            setTimeout(resolve, 1000);
+          }); // 1 second delay
         } else {
           return res
             .status(500)
-            .json({ error: 'Internal server error', message: error.message });
+            .json({ error: "Internal server error", message: error.message });
         }
       }
     }
@@ -98,7 +100,7 @@ async function storeTransaksi(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 
@@ -108,24 +110,24 @@ async function getTransaksiById(req, res) {
 
     // Validate the id as a UUID
     if (!isUUID(id, 4)) {
-      return res.status(400).json({ message: 'Invalid transaki ID format!' });
+      return res.status(400).json({ message: "Invalid transaki ID format!" });
     }
 
     const transaksi = await Transaksi.findByPk(id, {
       include: [
         {
           model: Perbaikan,
-          as: 'perbaikan',
+          as: "perbaikan",
         },
         {
           model: User,
-          as: 'user',
+          as: "user",
         },
       ],
     });
 
     if (!transaksi) {
-      return res.status(404).json({ message: 'Transaksi tidak ditemukan!' });
+      return res.status(404).json({ message: "Transaksi tidak ditemukan!" });
     }
 
     return res.status(200).json(transaksi);
@@ -133,7 +135,7 @@ async function getTransaksiById(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 

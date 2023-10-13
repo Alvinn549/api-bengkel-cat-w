@@ -1,11 +1,14 @@
 {
   "env": {
-    "browser": true,
     "commonjs": true,
     "es2021": true,
     "node": true
   },
-  "extends": "airbnb-base",
+  "extends": [
+    "airbnb-base",
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
   "overrides": [],
   "parserOptions": {
     "ecmaVersion": "latest"
@@ -19,7 +22,9 @@
         "selector": "ForInStatement"
       }
     ],
-
-    "no-await-in-loop": "off"
+    "consistent-return": "off",
+    "no-await-in-loop": "off",
+    "object-curly-newline": "off",
+    "operator-linebreak": "off"
   }
 }

@@ -1,4 +1,4 @@
-const Joi = require('joi');
+const Joi = require("joi");
 
 const registerValidationSchema = Joi.object({
   nama: Joi.string().required(),
@@ -7,9 +7,9 @@ const registerValidationSchema = Joi.object({
   jenis_k: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
-  confirm_password: Joi.string().valid(Joi.ref('password')).required(),
+  confirm_password: Joi.string().valid(Joi.ref("password")).required(),
 }).messages({
-  'any.only': 'Password dan Confirm Password tidak sama!',
+  "any.only": "Password dan Confirm Password tidak sama!",
 });
 
 module.exports = { registerValidationSchema };

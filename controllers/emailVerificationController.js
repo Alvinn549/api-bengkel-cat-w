@@ -1,13 +1,12 @@
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
-const { User, UserActivation } = require('../db/models');
-const randomstring = require('randomstring');
+const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
+const randomstring = require("randomstring");
+const { User, UserActivation } = require("../db/models");
 
-// Function to send a verification email
 function sendVerificationEmail(email, code) {
   // Calculate expiration time for the verification code (30 minutes from now)
   const expireTime = new Date(Date.now() + 30 * 60 * 1000);
-  const expireTimeString = expireTime.toLocaleString(); // Convert expiration time to a readable format
+  const expireTimeString = expireTime.toLocaleString();
 
   // Create a nodemailer transporter to send the email
   const transporter = nodemailer.createTransport({
@@ -22,9 +21,9 @@ function sendVerificationEmail(email, code) {
 
   // Email content and options
   const mailOptions = {
-    from: 'e.bengkel.mail@gmail.com',
+    from: "e.bengkel.mail@gmail.com",
     to: email,
-    subject: 'Email Verification',
+    subject: "Email Verification",
     html: `
       <div style="display: flex; justify-content: center; align-items: center;">
         <div style="background-color: #F8F9FA; padding: 20px; border-radius: 10px; text-align: center;">
@@ -41,18 +40,16 @@ function sendVerificationEmail(email, code) {
       `,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  transporter.sendMail(mailOptions, (error) => {
     if (error) {
       console.log(error);
-      return false; // Email sending failed
-    } else {
-      console.log('Verification email sent');
-      return true; // Email sent successfully
+      return false;
     }
+    console.log("Verification email sent");
+    return true;
   });
 }
 
-// Function to handle email verification
 async function verifyEmail(req, res) {
   try {
     const { email, code: verificationCode } = req.body;
@@ -62,31 +59,31 @@ async function verifyEmail(req, res) {
       where: { email },
       include: {
         model: UserActivation,
-        as: 'activation',
+        as: "activation",
       },
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     if (user.isActive) {
-      return res.json({ message: 'Email already verified' });
+      return res.json({ message: "Email already verified" });
     }
 
     const match = await bcrypt.compare(verificationCode, user.activation.code);
 
     if (!match) {
-      return res.status(400).json({ error: 'Invalid verification code' });
+      return res.status(400).json({ error: "Invalid verification code" });
     }
 
-    const expireAt = user.activation.expireAt;
+    const { expireAt } = user.activation;
 
     // Check if the verification code has expired
     if (expireAt && expireAt < new Date()) {
       return res
         .status(400)
-        .json({ message: 'Verification code has expired!' });
+        .json({ message: "Verification code has expired!" });
     }
 
     // Mark the user as active and delete the activation record
@@ -94,12 +91,12 @@ async function verifyEmail(req, res) {
     await user.save();
     await user.activation.destroy();
 
-    return res.json({ message: 'Email verification successful' });
+    return res.json({ message: "Email verification successful" });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 
@@ -113,16 +110,16 @@ async function resendVerificationEmail(req, res) {
       where: { email },
       include: {
         model: UserActivation,
-        as: 'activation',
+        as: "activation",
       },
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     if (user.isActive) {
-      return res.json({ message: 'Email already verified' });
+      return res.json({ message: "Email already verified" });
     }
 
     // Generate a new verification code and salt for hashing
@@ -136,7 +133,7 @@ async function resendVerificationEmail(req, res) {
 
       user.activation.code = await bcrypt.hash(verificationCode, salt);
       user.activation.expireAt = new Date(
-        currentTime.getTime() + 30 * 60 * 1000
+        currentTime.getTime() + 30 * 60 * 1000,
       ); // Expiration time (30 minutes from now)
 
       await user.activation.save();
@@ -145,13 +142,13 @@ async function resendVerificationEmail(req, res) {
     }
 
     return res.status(201).json({
-      message: 'Kode Berhasil di kirim!',
+      message: "Kode Berhasil di kirim!",
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: 'Internal server error', message: error.message });
+      .json({ error: "Internal server error", message: error.message });
   }
 }
 
