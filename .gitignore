@@ -1,7 +1,7 @@
 node_modules
 .env
+.vscode/
 **/*.jpg
 **/*.jpeg
 **/*.png
 controllers/catatan.js
-.vscode/*
