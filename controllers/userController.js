@@ -29,7 +29,7 @@ async function getAllUser(req, res) {
     console.error(error);
     return res
       .status(500)
-      .json({ error: "Internal server error", message: error.message });
+      .json({ error: "Internal server errors", message: error.message });
   }
 }
 
