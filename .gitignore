@@ -4,3 +4,4 @@ node_modules
 **/*.jpeg
 **/*.png
 controllers/catatan.js
+.vscode/*
